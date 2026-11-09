@@ -1,0 +1,15 @@
+{
+ "dev-smooth": [
+  "{\"summary\": \"Balanced screening, replicate the top two, confirm two.\", \"screen_strategy\": \"balanced\", \"screens\": 10, \"replicate_top\": 2, \"confirm_top\": 2}"
+ ],
+ "dev-neartie": [
+  "{\"summary\": \"Balanced screening, replicate the top two, confirm two.\", \"screen_strategy\": \"balanced\", \"screens\": 10, \"replicate_top\": 2, \"confirm_top\": 2}"
+ ],
+ "dev-deceptive": [
+  "I think the next step is to screen a few more candidates before confirming.",
+  "{\"summary\": \"Screen widely, then confirm two.\", \"screen_strategy\": \"balanced\", \"screens\": 10, \"replicate_top\": 2, \"confirm_top\": 2}"
+ ],
+ "dev-boundary": [
+  "{\"summary\": \"Balanced screening, replicate the top two, confirm two.\", \"screen_strategy\": \"balanced\", \"screens\": 10, \"replicate_top\": 2, \"confirm_top\": 2}"
+ ]
+}

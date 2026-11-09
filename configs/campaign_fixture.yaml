@@ -1,0 +1,15 @@
+# Offline evaluation. Non-LLM baselines run for real; the LLM arms replay
+# scripted fixture replies (tests/fixtures/scripts). No model is called.
+# Frozen 2026-11-09 before any evaluation run.
+mode: fixture
+families: [dev, heldout]
+arms: [random_feasible, cost_aware, tuned_acquisition, single_call, agent, agent_default_selector, agent_no_replicate]
+runs: 1
+episode:
+  max_steps: 44
+  max_tool_calls: 36
+  max_tokens: 80000
+  max_wall_seconds: 600
+  recent_k: 4
+  max_completion_tokens: 400
+output_dir: reports/fixture

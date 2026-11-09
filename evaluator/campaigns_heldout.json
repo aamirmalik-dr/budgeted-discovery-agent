@@ -1,0 +1,585 @@
+{
+ "version": "heldout-v1",
+ "frozen": "2026-11-09",
+ "campaigns": [
+  {
+   "campaign_id": "ho-ridge",
+   "family": "heldout",
+   "shape": "ridge of rising bumps, band constraint",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 2201,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.8,
+       0.1,
+       0.1
+      ],
+      "height": 0.4,
+      "width": 0.12
+     },
+     {
+      "center": [
+       0.66,
+       0.1,
+       0.24000000000000002
+      ],
+      "height": 0.47000000000000003,
+      "width": 0.12
+     },
+     {
+      "center": [
+       0.52,
+       0.1,
+       0.38
+      ],
+      "height": 0.54,
+      "width": 0.12
+     },
+     {
+      "center": [
+       0.38,
+       0.1,
+       0.52
+      ],
+      "height": 0.6100000000000001,
+      "width": 0.12
+     },
+     {
+      "center": [
+       0.24,
+       0.1,
+       0.66
+      ],
+      "height": 0.68,
+      "width": 0.12
+     },
+     {
+      "center": [
+       0.09999999999999998,
+       0.1,
+       0.8
+      ],
+      "height": 0.75,
+      "width": 0.12
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.06,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "band",
+    "weights": [
+     0,
+     1,
+     0
+    ],
+    "threshold": 0.45,
+    "upper": 0.65,
+    "reason": "prohibited by synthetic rule H1: component B between 0.45 and 0.65"
+   }
+  },
+  {
+   "campaign_id": "ho-multimodal",
+   "family": "heldout",
+   "shape": "three separated peaks",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 2202,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.8,
+       0.1,
+       0.1
+      ],
+      "height": 0.62,
+      "width": 0.1
+     },
+     {
+      "center": [
+       0.1,
+       0.8,
+       0.1
+      ],
+      "height": 0.7,
+      "width": 0.1
+     },
+     {
+      "center": [
+       0.2,
+       0.2,
+       0.6
+      ],
+      "height": 0.55,
+      "width": 0.1
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.08,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "halfspace",
+    "weights": [
+     1,
+     1,
+     0
+    ],
+    "threshold": 0.95,
+    "reason": "prohibited by synthetic rule H2: C below 0.05"
+   }
+  },
+  {
+   "campaign_id": "ho-needle",
+   "family": "heldout",
+   "shape": "narrow peak on a broad plateau",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 2203,
+   "surface": {
+    "base": 0.35,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.6,
+       0.2,
+       0.2
+      ],
+      "height": 0.2,
+      "width": 0.4
+     },
+     {
+      "center": [
+       0.2,
+       0.5,
+       0.3
+      ],
+      "height": 0.45,
+      "width": 0.07
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.06,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "halfspace",
+    "weights": [
+     0,
+     0,
+     1
+    ],
+    "threshold": 0.8,
+    "reason": "prohibited by synthetic rule H3: component C above 0.8"
+   }
+  },
+  {
+   "campaign_id": "ho-cornertie",
+   "family": "heldout",
+   "shape": "near-tie between opposite corners, noisy screen",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 2204,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.9,
+       0.0,
+       0.1
+      ],
+      "height": 0.7,
+      "width": 0.15
+     },
+     {
+      "center": [
+       0.0,
+       0.9,
+       0.1
+      ],
+      "height": 0.67,
+      "width": 0.15
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.15,
+     "confirm": 0.03
+    }
+   },
+   "constraint": {
+    "kind": "disk",
+    "center": [
+     0.33,
+     0.33,
+     0.34
+    ],
+    "radius": 0.2,
+    "reason": "prohibited by synthetic rule H4: central miscibility gap"
+   }
+  },
+  {
+   "campaign_id": "ho-twobias",
+   "family": "heldout",
+   "shape": "two screen-only false peaks",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 2205,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.1,
+       0.6,
+       0.3
+      ],
+      "height": 0.6,
+      "width": 0.15
+     }
+    ],
+    "screen_bias": [
+     {
+      "center": [
+       0.6,
+       0.1,
+       0.3
+      ],
+      "height": 0.7,
+      "width": 0.12
+     },
+     {
+      "center": [
+       0.3,
+       0.0,
+       0.7
+      ],
+      "height": 0.6,
+      "width": 0.12
+     }
+    ],
+    "noise": {
+     "screen": 0.05,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "halfspace",
+    "weights": [
+     0,
+     1,
+     0
+    ],
+    "threshold": 0.85,
+    "reason": "prohibited by synthetic rule H5: component B above 0.85"
+   }
+  },
+  {
+   "campaign_id": "ho-trend",
+   "family": "heldout",
+   "shape": "linear trend toward a corner with a small bump",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 2206,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.2,
+     0.0,
+     0.6
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.3,
+       0.6,
+       0.1
+      ],
+      "height": 0.15,
+      "width": 0.15
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.06,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "halfspace",
+    "weights": [
+     0,
+     0,
+     1
+    ],
+    "threshold": 0.85,
+    "reason": "prohibited by synthetic rule H6: component C above 0.85"
+   }
+  },
+  {
+   "campaign_id": "ho-excluded",
+   "family": "heldout",
+   "shape": "global maximum inside the prohibited region",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 2207,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.5,
+       0.0,
+       0.5
+      ],
+      "height": 0.9,
+      "width": 0.12
+     },
+     {
+      "center": [
+       0.1,
+       0.8,
+       0.1
+      ],
+      "height": 0.6,
+      "width": 0.15
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.06,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "disk",
+    "center": [
+     0.5,
+     0.0,
+     0.5
+    ],
+    "radius": 0.2,
+    "reason": "prohibited by synthetic rule H7: A-C reactive window"
+   }
+  },
+  {
+   "campaign_id": "ho-noisy",
+   "family": "heldout",
+   "shape": "single peak under heavy noise",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 2208,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.4,
+       0.4,
+       0.2
+      ],
+      "height": 0.5,
+      "width": 0.2
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.2,
+     "confirm": 0.06
+    }
+   },
+   "constraint": {
+    "kind": "band",
+    "weights": [
+     1,
+     0,
+     0
+    ],
+    "threshold": 0.65,
+    "upper": 0.85,
+    "reason": "prohibited by synthetic rule H8: component A between 0.65 and 0.85"
+   }
+  },
+  {
+   "campaign_id": "ho-lowbudget",
+   "family": "heldout",
+   "shape": "two peaks, tight budget",
+   "budget_units": 22.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 2209,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.7,
+       0.0,
+       0.3
+      ],
+      "height": 0.7,
+      "width": 0.18
+     },
+     {
+      "center": [
+       0.0,
+       0.3,
+       0.7
+      ],
+      "height": 0.5,
+      "width": 0.18
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.06,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "halfspace",
+    "weights": [
+     0,
+     1,
+     0
+    ],
+    "threshold": 0.7,
+    "reason": "prohibited by synthetic rule H9: component B above 0.7"
+   }
+  },
+  {
+   "campaign_id": "ho-flat",
+   "family": "heldout",
+   "shape": "shallow landscape with small differences",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 2210,
+   "surface": {
+    "base": 0.5,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.2,
+       0.5,
+       0.3
+      ],
+      "height": 0.12,
+      "width": 0.15
+     },
+     {
+      "center": [
+       0.6,
+       0.3,
+       0.1
+      ],
+      "height": 0.1,
+      "width": 0.15
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.06,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "disk",
+    "center": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "radius": 0.3,
+    "reason": "prohibited by synthetic rule H10: C-rich corner"
+   }
+  }
+ ]
+}

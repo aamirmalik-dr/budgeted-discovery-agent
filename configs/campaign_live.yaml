@@ -1,0 +1,23 @@
+# Live pilot against an OpenAI-compatible endpoint configured through
+# AGENT_MODEL_BASE_URL and AGENT_MODEL_API_KEY. The model is pinned here and
+# overrides AGENT_MODEL_NAME. Held-out family only: 10 independent campaigns,
+# two noise streams (runs 0 and 1), every arm on the same streams.
+# Frozen 2026-11-09 before the live run.
+mode: live
+model: openai/gpt-4.1-mini        # via OpenRouter, chosen 2026-11-09
+families: [heldout]
+arms: [random_feasible, cost_aware, tuned_acquisition, single_call, agent, agent_default_selector, agent_no_replicate]
+runs: 2
+episode:
+  max_steps: 44
+  max_tool_calls: 36
+  max_tokens: 80000               # prompt plus completion, per agent campaign
+  max_wall_seconds: 600
+  recent_k: 4
+  max_completion_tokens: 400
+run_caps:
+  max_total_tokens: 6000000       # whole run; later LLM episodes are recorded as failed
+  max_usd: 3.0                    # checked before every episode at the prices below
+  usd_per_mtok_input: 0.40        # OpenRouter listed price, 2026-11-09
+  usd_per_mtok_output: 1.60
+output_dir: reports/live

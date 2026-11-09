@@ -1,0 +1,5 @@
+# Tuned on the dev family only by scripts/tune_acquisition.py (runs 100 to 104).
+# Dev mean normalised regret of this setting: 0.0030. Frozen 2026-11-09.
+lengthscale: 0.15
+beta: 0.5
+n_confirm: 1

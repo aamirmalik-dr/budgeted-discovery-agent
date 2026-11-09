@@ -1,0 +1,214 @@
+{
+ "version": "dev-v1",
+ "frozen": "2026-11-09",
+ "campaigns": [
+  {
+   "campaign_id": "dev-smooth",
+   "family": "dev",
+   "shape": "single broad peak, low noise",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 1101,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.6,
+       0.3,
+       0.1
+      ],
+      "height": 0.8,
+      "width": 0.25
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.05,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "halfspace",
+    "weights": [
+     0,
+     0,
+     1
+    ],
+    "threshold": 0.7,
+    "reason": "prohibited by synthetic stability rule S1: component C above 0.7"
+   }
+  },
+  {
+   "campaign_id": "dev-neartie",
+   "family": "dev",
+   "shape": "two near-equal narrow peaks, noisy screen",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 1102,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.2,
+       0.7,
+       0.1
+      ],
+      "height": 0.8,
+      "width": 0.12
+     },
+     {
+      "center": [
+       0.7,
+       0.1,
+       0.2
+      ],
+      "height": 0.76,
+      "width": 0.12
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.12,
+     "confirm": 0.03
+    }
+   },
+   "constraint": {
+    "kind": "disk",
+    "center": [
+     0.1,
+     0.1,
+     0.8
+    ],
+    "radius": 0.25,
+    "reason": "prohibited by synthetic rule S2: C-rich corner is unstable"
+   }
+  },
+  {
+   "campaign_id": "dev-deceptive",
+   "family": "dev",
+   "shape": "screen bias creates a false optimum",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 1103,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.2,
+       0.2,
+       0.6
+      ],
+      "height": 0.7,
+      "width": 0.15
+     },
+     {
+      "center": [
+       0.7,
+       0.2,
+       0.1
+      ],
+      "height": 0.3,
+      "width": 0.15
+     }
+    ],
+    "screen_bias": [
+     {
+      "center": [
+       0.7,
+       0.2,
+       0.1
+      ],
+      "height": 0.55,
+      "width": 0.12
+     }
+    ],
+    "noise": {
+     "screen": 0.05,
+     "confirm": 0.03
+    }
+   },
+   "constraint": {
+    "kind": "halfspace",
+    "weights": [
+     1,
+     0,
+     0
+    ],
+    "threshold": 0.9,
+    "reason": "prohibited by synthetic rule S3: component A above 0.9"
+   }
+  },
+  {
+   "campaign_id": "dev-boundary",
+   "family": "dev",
+   "shape": "optimum sits on an infeasible boundary",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 1104,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.53,
+       0.47,
+       0.0
+      ],
+      "height": 0.8,
+      "width": 0.2
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.06,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "disk",
+    "center": [
+     0.6,
+     0.4,
+     0.0
+    ],
+    "radius": 0.15,
+    "reason": "prohibited by synthetic rule S4: A-B eutectic window"
+   }
+  }
+ ]
+}

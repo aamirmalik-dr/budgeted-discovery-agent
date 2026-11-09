@@ -1,0 +1,33 @@
+{
+ "ho-ridge": [
+  "{\"summary\": \"Balanced screening, replicate the top two, confirm two.\", \"screen_strategy\": \"balanced\", \"screens\": 10, \"replicate_top\": 2, \"confirm_top\": 2}"
+ ],
+ "ho-multimodal": [
+  "{\"summary\": \"Balanced screening, replicate the top two, confirm two.\", \"screen_strategy\": \"balanced\", \"screens\": 10, \"replicate_top\": 2, \"confirm_top\": 2}"
+ ],
+ "ho-needle": [
+  "{\"summary\": \"Balanced screening, replicate the top two, confirm two.\", \"screen_strategy\": \"balanced\", \"screens\": 10, \"replicate_top\": 2, \"confirm_top\": 2}"
+ ],
+ "ho-cornertie": [
+  "{\"summary\": \"Balanced screening, replicate the top two, confirm two.\", \"screen_strategy\": \"balanced\", \"screens\": 10, \"replicate_top\": 2, \"confirm_top\": 2}"
+ ],
+ "ho-twobias": [
+  "{\"summary\": \"Balanced screening, replicate the top two, confirm two.\", \"screen_strategy\": \"balanced\", \"screens\": 10, \"replicate_top\": 2, \"confirm_top\": 2}"
+ ],
+ "ho-trend": [
+  "{\"summary\": \"Balanced screening, replicate the top two, confirm two.\", \"screen_strategy\": \"balanced\", \"screens\": 10, \"replicate_top\": 2, \"confirm_top\": 2}"
+ ],
+ "ho-excluded": [
+  "{\"summary\": \"Balanced screening, replicate the top two, confirm two.\", \"screen_strategy\": \"balanced\", \"screens\": 10, \"replicate_top\": 2, \"confirm_top\": 2}"
+ ],
+ "ho-noisy": [
+  "{\"summary\": \"Balanced screening, replicate the top two, confirm two.\", \"screen_strategy\": \"balanced\", \"screens\": 10, \"replicate_top\": 2, \"confirm_top\": 2}"
+ ],
+ "ho-lowbudget": [
+  "{\"summary\": \"Exploit early with a tight budget.\", \"screen_strategy\": \"exploit\", \"screens\": 30, \"replicate_top\": 0, \"confirm_top\": 3}"
+ ],
+ "ho-flat": [
+  "I think the next step is to screen a few more candidates before confirming.",
+  "Plan: screen 20, confirm 2."
+ ]
+}
