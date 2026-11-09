@@ -29,8 +29,14 @@ def two_disks(centers, radius, reason):
 
 
 def wedge(w1, t1, w2, t2, reason):
-    return {"kind": "wedge", "weights": list(w1), "threshold": t1, "weights2": list(w2), "threshold2": t2,
-            "reason": reason}  # fmt: skip
+    return {
+        "kind": "wedge",
+        "weights": list(w1),
+        "threshold": t1,
+        "weights2": list(w2),
+        "threshold2": t2,
+        "reason": reason,
+    }
 
 
 def ring(center, inner, outer, reason):
