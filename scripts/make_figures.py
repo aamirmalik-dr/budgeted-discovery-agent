@@ -6,13 +6,16 @@ task_results.jsonl, the per-campaign receipt ledgers and, for the example
 campaign, the saved agent trace. True values for the anytime-regret curves and
 the example campaign come from the frozen campaign definitions in evaluator/
 through the deterministic simulator, read after the fact as the scorer does.
-No model is called and nothing is estimated. Running this script twice gives
-identical files. The aborted run B attempt (reports/aborted/) is not drawn.
+No model is called and nothing is estimated. The aborted run B attempt
+(reports/aborted/) is not drawn.
 
-Because this repository already carries large saved outputs, each PNG is
-re-encoded after saving with a 256-colour palette built from its own most
-frequent colours: the hardcoded fills, lines and text keep their exact
-colours, and only rare anti-aliasing shades map to the nearest kept colour.
+Each figure is written to docs/figures/ as SVG and as a 300 dpi PNG, plus
+figure_stats.json with every plotted value and interval. Because this
+repository already carries large saved outputs, each PNG is re-encoded after
+saving with a 256-colour palette built from its own most frequent colours: the
+hardcoded fills, lines and text keep their exact colours, and only rare
+anti-aliasing shades map to the nearest kept colour. Running the script twice
+gives byte-identical files.
 
 Usage: python scripts/make_figures.py [--out docs/figures]
 """
@@ -27,10 +30,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import figure_style as fs  # noqa: E402
-import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
-from matplotlib.lines import Line2D  # noqa: E402
-from matplotlib.patches import Patch  # noqa: E402
+from matplotlib.ticker import MultipleLocator  # noqa: E402
 from PIL import Image  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -38,16 +39,12 @@ sys.path.insert(0, str(ROOT / "src"))
 from budgeted_discovery_agent.candidates import load_candidates  # noqa: E402
 from budgeted_discovery_agent.environment import Simulator, load_campaigns  # noqa: E402
 
-# (output dir, campaign family, group label, second model?)
+# (output dir, campaign family, label, second model)
 ROUNDS = [
-    ("live", "heldout", "v1, gpt-4.1-mini\nheld-out v1", False),
-    ("live_v2", "heldout_v2", "v2, gpt-4.1-mini\nheld-out v2", False),
-    ("live_v2_sonnet", "heldout_v2", "v2, second model\nheld-out v2", True),
+    ("live", "heldout", "v1", False),
+    ("live_v2", "heldout_v2", "v2", False),
+    ("live_v2_sonnet", "heldout_v2", "v2, Sonnet", True),
 ]
-SAMPLE = (
-    "Live. v1 and v2: gpt-4.1-mini, 10 campaigns x 2 noise streams.\n"
-    "Second model: claude-sonnet-4.6, 10 campaigns x 1 stream, agent hatched."
-)
 ARMS = [
     "random_feasible",
     "cost_aware",
@@ -66,22 +63,21 @@ ARM_TYPE = {
     "agent_no_replicate": "ablation",
     "agent_default_selector": "ablation",
 }
-ARM_LABEL = {
-    "random_feasible": "random",
-    "cost_aware": "cost-aware",
-    "tuned_acquisition": "tuned UCB",
-    "single_call": "single",
-    "agent": "agent",
-    "agent_no_replicate": "no-rep",
-    "agent_default_selector": "def-sel",
+ARM_NAME = {
+    "random_feasible": "Random feasible",
+    "cost_aware": "Cost-aware design",
+    "tuned_acquisition": "Tuned GP-UCB",
+    "single_call": "Single call",
+    "agent": "Agent",
+    "agent_no_replicate": "Agent, no replicate",
+    "agent_default_selector": "Agent, default selector",
 }
-KEY = (
-    "random, cost-aware, tuned UCB: no model.  single: one model call sets the allocation.\n"
-    "agent: iterative agent.  no-rep: agent without replicate.  def-sel: proposals forced "
-    "to balanced."
-)
+LLM_ARMS = ["single_call", "agent", "agent_no_replicate", "agent_default_selector"]
 PENDING = "run_budget_exhausted"
-FIGURES = ["regret_by_arm.png", "regret_vs_spend.png", "stop_reasons.png", "example_campaign.png"]
+STEMS = ["fig1_main", "figS1_paired_vs_tuned"]
+TUNED_SHADE = "#4D4D4D"  # darker grey and a down-triangle tell the tuned rule from random
+FIG_H = 190.0
+STATS: dict[str, dict] = {}
 
 
 def results(name: str) -> list[dict]:
@@ -96,80 +92,8 @@ def by_arm(rows: list[dict]) -> dict[str, list[dict]]:
     return out
 
 
-def layout(arms: list[str]) -> list[tuple[float, str, bool, str]]:
-    """Bar positions: (x, round dir, second model, arm)."""
-    pos, x = [], 0.0
-    for name, _, _, second in ROUNDS:
-        present = by_arm(results(name))
-        for arm in arms:
-            if arm in present:
-                pos.append((x, name, second, arm))
-                x += 1
-        x += 0.9
-    return pos
-
-
-def label_groups(ax, pos, y: float = -0.2) -> None:
-    """Arm names as rotated ticks, round names centred under each group."""
-    ax.set_xticks([p[0] for p in pos], [ARM_LABEL[p[3]] for p in pos], rotation=30, ha="right")
-    for name, _, title, _ in ROUNDS:
-        xs = [p[0] for p in pos if p[1] == name]
-        if xs:
-            ax.text(
-                sum(xs) / len(xs),
-                y,
-                title,
-                ha="center",
-                va="top",
-                fontsize=10,
-                transform=ax.get_xaxis_transform(),
-            )
-    ax.set_xlim(pos[0][0] - 0.7, pos[-1][0] + 1.0)
-
-
-# ---------------------------------------------------------------- figure 1
-
-
-def regret_by_arm(out: Path) -> None:
-    pos = layout(ARMS)
-    fig, ax = plt.subplots(figsize=(fs.WIDTH, 5.7))
-    for x, name, second, arm in pos:
-        rs = by_arm(results(name))[arm]
-        done = [r for r in rs if r["stop_reason"] != PENDING]
-        pend = len(rs) - len(done)
-        vals = [r["normalized_regret"] for r in done]
-        hits = sum(r["hit"] for r in done)
-        hatch = second and ARM_TYPE[arm] != "baseline"
-        ax.bar(x, float(np.mean(vals)), width=0.72, **fs.bar_kwargs(ARM_TYPE[arm], hatch))
-        fs.points(ax, x, sorted(vals), spread=0.26)
-        label = f"{hits}/{len(done)}" + (f"\n+{pend}p" if pend else "")
-        ax.text(x, 1.36, label, ha="center", va="bottom", fontsize=10)
-    ax.text(pos[0][0] - 0.65, 1.36, "hit", ha="right", va="bottom", fontsize=10, color=fs.MUTED)
-    ax.set_ylim(0, 1.55)
-    ax.set_yticks([0, 0.25, 0.5, 0.75, 1.0, 1.25])
-    ax.axhline(1.0, color=fs.MUTED, lw=0.8, ls="--", zorder=1)
-    ax.set_ylabel("normalised regret of the declared candidate\n(0 = optimum, 1 = random pick)")
-    label_groups(ax, pos)
-    ax.set_title(
-        "Regret per campaign by arm (bar: mean; points: campaigns; top: optimum hit k/n;\n"
-        "+Np: N episodes pending, not run because of the dollar cap).\n" + SAMPLE,
-        fontsize=10.5,
-        loc="left",
-    )
-    fig.text(0.01, 0.01, KEY, fontsize=10, color=fs.MUTED, va="bottom")
-    fig.subplots_adjust(left=0.1, right=0.99, top=0.76, bottom=0.31)
-    fs.save(fig, out / "regret_by_arm.png")
-
-
-# ---------------------------------------------------------------- figure 2
-
-FRACTIONS = np.linspace(0.0, 1.0, 21)
-CURVE_ARMS = [
-    ("random_feasible", "random (no model)", fs.BASELINE, ":", "o"),
-    ("tuned_acquisition", "tuned UCB (no model)", fs.BASELINE, "-", "s"),
-    ("single_call", "single call", fs.SINGLE, "-", "^"),
-    ("agent", "agent", fs.AGENT, "-", "D"),
-]
+def done(rows: list[dict]) -> list[dict]:
+    return [r for r in rows if r["stop_reason"] != PENDING]
 
 
 def oracles(family: str) -> tuple[dict, dict]:
@@ -178,6 +102,26 @@ def oracles(family: str) -> tuple[dict, dict]:
         s.campaign_id: s for s in load_campaigns(ROOT / "evaluator" / f"campaigns_{family}.json")
     }
     return specs, {cid: Simulator(s, cands, 0).oracle_summary(cands) for cid, s in specs.items()}
+
+
+def per_campaign(rows: list[dict], key: str) -> dict[str, float]:
+    acc: dict[str, list[float]] = defaultdict(list)
+    for r in done(rows):
+        acc[r["campaign_id"]].append(float(r[key]))
+    return {c: float(np.mean(v)) for c, v in acc.items()}
+
+
+def paired(rows_a: list[dict], rows_b: list[dict], tag: str) -> tuple[float, float, float, int]:
+    a, b = per_campaign(rows_a, "normalized_regret"), per_campaign(rows_b, "normalized_regret")
+    camps = sorted(set(a) & set(b))
+    m, lo, hi = fs.paired_bootstrap([a[c] for c in camps], [b[c] for c in camps])
+    STATS[tag] = {"mean_difference": m, "bootstrap95": [lo, hi], "n_campaigns": len(camps)}
+    return m, lo, hi, len(camps)
+
+
+# Anytime regret --------------------------------------------------------------
+
+FRACTIONS = np.linspace(0.0, 1.0, 21)
 
 
 def anytime_regret(ledger: dict, oracle: dict) -> list[float]:
@@ -201,168 +145,336 @@ def anytime_regret(ledger: dict, oracle: dict) -> list[float]:
     return out
 
 
-def curves(name: str, family: str, arm: str) -> np.ndarray:
-    _, orc = oracles(family)
-    rows = [r for r in results(name) if r["arm"] == arm and r["stop_reason"] != PENDING]
-    data = []
+def curves(name: str, family: str, arm: str, orc: dict) -> tuple[np.ndarray, list[str]]:
+    rows = done([r for r in results(name) if r["arm"] == arm])
+    data, camps = [], []
     for r in rows:
-        path = (
-            ROOT
-            / "reports"
-            / name
-            / "ledgers"
-            / family
-            / arm
-            / f"{r['campaign_id']}_run{r['run']}.json"
-        )
-        data.append(
-            anytime_regret(json.loads(path.read_text(encoding="utf-8")), orc[r["campaign_id"]])
-        )
-    return np.array(data)
+        fname = f"{r['campaign_id']}_run{r['run']}.json"
+        path = ROOT / "reports" / name / "ledgers" / family / arm / fname
+        ledger = json.loads(path.read_text(encoding="utf-8"))
+        data.append(anytime_regret(ledger, orc[r["campaign_id"]]))
+        camps.append(r["campaign_id"])
+    return np.array(data), camps
 
 
-def regret_vs_spend(out: Path) -> None:
-    fig, axes = plt.subplots(1, 2, figsize=(fs.WIDTH, 4.6), sharey=True)
-    panels = [
-        (axes[0], "live", "heldout", "v1, gpt-4.1-mini, held-out v1"),
-        (axes[1], "live_v2", "heldout_v2", "v2, gpt-4.1-mini, held-out v2"),
-    ]
-    for ax, name, family, title in panels:
-        for arm, _label, colour, ls, marker in CURVE_ARMS:
-            c = curves(name, family, arm)
-            med = np.median(c, axis=0)
-            q1, q3 = np.percentile(c, [25, 75], axis=0)
-            ax.plot(
-                FRACTIONS,
-                med,
-                color=colour,
-                ls=ls,
-                lw=1.8,
-                marker=marker,
-                ms=4,
-                markevery=4,
-                markerfacecolor=colour,
-                markeredgecolor=fs.EDGE,
-                zorder=3,
+def median_band(c: np.ndarray, camps: list[str]) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Median curve with a bootstrap 95% band that resamples campaigns (all their runs)."""
+    ids = sorted(set(camps))
+    groups = [np.where(np.asarray(camps) == i)[0] for i in ids]
+    rng = np.random.default_rng(fs.SEED)
+    meds = np.empty((fs.N_BOOT, c.shape[1]))
+    for b in range(fs.N_BOOT):
+        pick = rng.integers(0, len(ids), size=len(ids))
+        rows = np.concatenate([groups[k] for k in pick])
+        meds[b] = np.median(c[rows], axis=0)
+    lo, hi = np.percentile(meds, [2.5, 97.5], axis=0)
+    return np.median(c, axis=0), lo, hi
+
+
+CURVE_ARMS = ["random_feasible", "tuned_acquisition", "single_call", "agent"]
+
+
+def panel_curves(fig, top: float) -> None:
+    left0, width, height, gapx, gapy = 22.0, 33.0, 19.0, 5.0, 5.0
+    axes, ymax = [], 1.0
+    for i, (name, family, label, _) in enumerate(ROUNDS[:2]):
+        _, orc = oracles(family)
+        cs = {arm: curves(name, family, arm, orc) for arm in CURVE_ARMS}
+        meds = {arm: median_band(*cs[arm]) for arm in CURVE_ARMS}
+        if i == 1:
+            sc = curves("live_v2_sonnet", family, "agent", orc)
+            sonnet = median_band(*sc)
+            stc = curves("live_v2_sonnet", family, "tuned_acquisition", orc)
+            sonnet_tuned = median_band(*stc)
+            STATS["incumbent_regret_median/live_v2_sonnet/tuned_acquisition"] = {
+                "fractions": FRACTIONS.tolist(),
+                "median": sonnet_tuned[0].tolist(),
+                "bootstrap95": [sonnet_tuned[1].tolist(), sonnet_tuned[2].tolist()],
+                "n_runs": len(stc[1]),
+            }
+            STATS["incumbent_regret_median/live_v2_sonnet/agent"] = {
+                "fractions": FRACTIONS.tolist(),
+                "median": sonnet[0].tolist(),
+                "bootstrap95": [sonnet[1].tolist(), sonnet[2].tolist()],
+                "n_runs": len(sc[1]),
+            }
+        for j, arm in enumerate(CURVE_ARMS):
+            ax = fs.axes_mm(
+                fig, left0 + j * (width + gapx), top + i * (height + gapy), width, height
             )
-            if arm in ("tuned_acquisition", "agent"):
-                ax.fill_between(FRACTIONS, q1, q3, color=colour, alpha=0.18, lw=0, zorder=2)
-        ax.set_title(title, fontsize=10.5)
-        ax.set_xlabel("fraction of the assay budget spent")
-        ax.set_xlim(0, 1)
-    if True:
-        c = curves("live_v2_sonnet", "heldout_v2", "agent")
-        axes[1].plot(
-            FRACTIONS,
-            np.median(c, axis=0),
-            color=fs.AGENT,
-            lw=1.4,
-            ls="--",
-            marker="D",
-            ms=5,
-            markevery=4,
-            markerfacecolor="white",
-            markeredgecolor=fs.EDGE,
-            zorder=4,
-        )
-    axes[0].set_ylim(0, 1.3)
-    axes[0].set_ylabel("regret of the incumbent\n(median over campaigns)")
-    handles = [
-        Line2D(
-            [],
-            [],
-            color=col,
-            ls=ls,
-            marker=m,
-            ms=5,
-            markerfacecolor=col,
-            markeredgecolor=fs.EDGE,
-            label=lab,
-        )
-        for _, lab, col, ls, m in CURVE_ARMS
-    ] + [
-        Line2D(
-            [],
-            [],
-            color=fs.AGENT,
-            ls="--",
-            marker="D",
-            ms=5,
-            markerfacecolor="white",
-            markeredgecolor=fs.EDGE,
-            label="agent, second model (v2, 8 campaigns)",
-        ),
-        Patch(color=fs.BASELINE, alpha=0.3, label="interquartile band (tuned UCB, agent)"),
-    ]
-    fig.legend(handles=handles, loc="lower center", ncol=3, frameon=False, fontsize=10)
-    fig.suptitle(
-        "Regret of the best-looking candidate so far, as the budget is spent (no answer yet = 1)\n"
-        "Live. gpt-4.1-mini, 10 campaigns x 2 streams per panel; second model 8 campaigns x 1",
-        fontsize=10.5,
-        x=0.01,
-        ha="left",
-    )
-    fig.subplots_adjust(left=0.1, right=0.97, top=0.82, bottom=0.31, wspace=0.1)
-    fs.save(fig, out / "regret_vs_spend.png")
-
-
-# ---------------------------------------------------------------- figure 3
-
-STOPS = [
-    ("finished", "finished", fs.OUTCOME["correct"]),
-    ("max_tokens", "token cap (80,000)", fs.OUTCOME["wrong"]),
-    ("max_tool_calls", "tool-call cap (36)", fs.OUTCOME["failed"]),
-    (PENDING, "pending (dollar cap)", fs.OUTCOME["not run"]),
-]
-LLM_ARMS = ["single_call", "agent", "agent_no_replicate", "agent_default_selector"]
-
-
-def stop_reasons(out: Path) -> None:
-    pos = layout(LLM_ARMS)
-    fig, ax = plt.subplots(figsize=(fs.WIDTH, 5.0))
-    for x, name, second, arm in pos:
-        rs = by_arm(results(name))[arm]
-        n = len(rs)
-        bottom = 0.0
-        for key, _, colour in STOPS:
-            k = sum(r["stop_reason"] == key for r in rs)
-            if k:
-                ax.bar(
-                    x,
-                    k / n,
-                    bottom=bottom,
-                    width=0.72,
-                    color=colour,
-                    edgecolor=fs.EDGE,
+            for other in CURVE_ARMS:
+                if other != arm:
+                    ax.step(
+                        FRACTIONS,
+                        meds[other][0],
+                        where="post",
+                        color=(
+                            TUNED_SHADE
+                            if other == "tuned_acquisition" and arm != "random_feasible"
+                            else fs.CONTEXT
+                        ),
+                        linewidth=0.8,
+                        zorder=1,
+                    )
+            m, lo, hi = meds[arm]
+            STATS[f"incumbent_regret_median/{name}/{arm}"] = {
+                "fractions": FRACTIONS.tolist(),
+                "median": m.tolist(),
+                "bootstrap95": [lo.tolist(), hi.tolist()],
+                "n_runs": len(cs[arm][1]),
+            }
+            t = ARM_TYPE[arm]
+            ax.fill_between(
+                FRACTIONS,
+                lo,
+                hi,
+                step="post",
+                color=fs.ARM_COLOUR[t],
+                alpha=0.22,
+                linewidth=0,
+                zorder=2,
+            )
+            lk = fs.line_kw(t, width=1.2)
+            if arm == "tuned_acquisition":
+                lk["color"] = TUNED_SHADE
+            ax.step(FRACTIONS, m, where="post", **lk)
+            if i == 1 and arm == "agent":
+                for edge in (sonnet[1], sonnet[2]):
+                    ax.step(
+                        FRACTIONS,
+                        edge,
+                        where="post",
+                        color=fs.AGENT,
+                        linewidth=0.4,
+                        linestyle=(0, (1, 1.2)),
+                        zorder=2,
+                    )
+                ax.step(FRACTIONS, sonnet[0], where="post", **fs.line_kw("agent", True, 1.0))
+                ax.step(
+                    FRACTIONS,
+                    sonnet_tuned[0],
+                    where="post",
+                    color=TUNED_SHADE,
                     linewidth=0.8,
-                    hatch=fs.SECOND_MODEL_HATCH if second else None,
+                    linestyle=(0, (2.2, 1.2)),
                     zorder=2,
                 )
-                bottom += k / n
-        k = sum(r["stop_reason"] == "finished" for r in rs)
-        ax.text(x, 1.03, f"{k}/{n}", ha="center", va="bottom", fontsize=10)
+                ymax = max(ymax, float(sonnet[2].max()))
+            ax.set_xlim(0, 1)
+            axes.append(ax)
+            ymax = max(ymax, float(hi.max()), float(m.max()))
+            ax.set_xticks([0, 0.5, 1])
+            ax.set_yticks([0, 0.5, 1])
+            ax.xaxis.set_minor_locator(MultipleLocator(0.1))
+            fs.tidy_ticks(ax)
+            if j:
+                ax.set_yticklabels([])
+            if i == 0:
+                ax.set_xticklabels([])
+                ax.set_title(ARM_NAME[arm])
+        fig.text(
+            (left0 + 4 * width + 3 * gapx + 3.0) / fs.FULL_WIDTH,
+            1 - (top + i * (height + gapy) + height / 2) / FIG_H,
+            f"{label}\ngpt-4.1-mini",
+            ha="center",
+            va="center",
+            rotation=270,
+        )
+    fig.text(
+        (left0 + 2 * width + 1.5 * gapx) / fs.FULL_WIDTH,
+        1 - (top + 2 * height + gapy + 8) / FIG_H,
+        "Budget spent (fraction)",
+        ha="center",
+        va="center",
+    )
+    fig.text(
+        (left0 - 8) / fs.FULL_WIDTH,
+        1 - (top + height + gapy / 2) / FIG_H,
+        "Incumbent regret (median)",
+        rotation=90,
+        ha="center",
+        va="center",
+    )
+    for ax in axes:
+        ax.set_ylim(0, ymax * 1.03)
+        ax.spines["left"].set_bounds(0, ymax)
+    fs.panel_label(fig, "a", 1.5, top - 6.0)
+
+
+def raincloud_rows() -> list[tuple[float, str, str, bool, str]]:
+    rows, y = [], 0.0
+    for arm in CURVE_ARMS:
+        for name, _, label, second in ROUNDS:
+            if arm in by_arm(results(name)):
+                rows.append((y, arm, name, second, label))
+                y += 2.0
+        y += 0.4
+    return rows
+
+
+def panel_final(fig, top: float) -> None:
+    rows = raincloud_rows()
+    height = (rows[-1][0] + 1.0) * 2.7
+    ax = fs.axes_mm(fig, 41.0, top, 44.0, height)
+    ax.set_ylim(rows[-1][0] + 0.8, -0.8)
+    for y, arm, name, second, _ in rows:
+        rs = done(by_arm(results(name))[arm])
+        vals = [r["normalized_regret"] for r in rs]
+        q1, med, q3 = np.percentile(vals, [25, 50, 75])
+        STATS[f"final_regret/{name}/{arm}"] = {
+            "n": len(vals),
+            "mean": float(np.mean(vals)),
+            "median": float(med),
+            "q1": float(q1),
+            "q3": float(q3),
+            "max": float(max(vals)),
+            "pending": len(by_arm(results(name))[arm]) - len(rs),
+        }
+        tuned = arm == "tuned_acquisition"
+        fs.raincloud(
+            ax,
+            y,
+            vals,
+            ARM_TYPE[arm],
+            second,
+            height=0.36,
+            jitter=0.62,
+            marker="v" if tuned else None,
+            shade=TUNED_SHADE if tuned else None,
+        )
+        none = sum(1 for r in rs if r["chosen"] is None)
+        STATS[f"final_regret/{name}/{arm}"]["no_answer"] = none
+        if none:
+            ax.text(
+                1.02,
+                y,
+                f"{none} no answer",
+                transform=ax.get_yaxis_transform(),
+                ha="left",
+                va="center",
+                color=fs.MUTED,
+            )
+    ax.axvline(1.0, color=fs.REFERENCE, linewidth=0.6, zorder=0)
+    ax.set_yticks([r[0] for r in rows], [r[4] for r in rows])
+    for arm in CURVE_ARMS:
+        ys = [r[0] for r in rows if r[1] == arm]
+        ax.text(
+            -0.3,
+            (ys[0] + ys[-1]) / 2,
+            ARM_NAME[arm].replace(", ", ",\n"),
+            ha="right",
+            va="center",
+            transform=ax.get_yaxis_transform(),
+        )
+    ax.tick_params(axis="y", length=0)
+    ax.spines["left"].set_visible(False)
+    xmax = max(STATS[k]["max"] for k in STATS if k.startswith("final_regret/"))
+    ax.set_xlim(-0.03, max(1.12, xmax + 0.04))
+    ax.spines["bottom"].set_bounds(0, max(1.1, xmax))
+    ax.set_xticks([0, 0.5, 1])
+    ax.xaxis.set_minor_locator(MultipleLocator(0.1))
+    fs.tidy_ticks(ax, "x")
+    ax.set_xlabel("Final normalised regret")
+    fs.panel_label(fig, "b", 1.5, top - 3.0)
+
+
+STOPS = [
+    ("finished", "correct", "Finished"),
+    ("max_tokens", "wrong", "Token cap (80,000)"),
+    ("max_tool_calls", "failed", "Tool-call cap (36)"),
+    (PENDING, "pending", "Pending (dollar cap)"),
+]
+
+
+def panel_stops(fig, top: float) -> None:
+    rows, y = [], 0.0
+    for arm in LLM_ARMS:
+        for name, _, label, second in ROUNDS:
+            if arm in by_arm(results(name)):
+                rows.append((y, arm, name, second, label))
+                y += 1
+        y += 0.5
+    height = (rows[-1][0] + 1) * 3.1
+    ax = fs.axes_mm(fig, 138.0, top, 31.0, height)
+    for y, arm, name, second, _ in rows:
+        rs = by_arm(results(name))[arm]
+        n = len(rs)
+        start = 0.0
+        counts = {}
+        for key, colour, _ in STOPS:
+            k = sum(r["stop_reason"] == key for r in rs)
+            counts[key] = k
+            if k:
+                ax.barh(
+                    y,
+                    k / n,
+                    left=start,
+                    height=0.66,
+                    color=fs.OUTCOME[colour],
+                    edgecolor=fs.MUTED if colour == "pending" else "white",
+                    linewidth=0.4,
+                )
+            start += k / n
+        if second:
+            ax.add_patch(
+                fs.plt.Rectangle(
+                    (0, y - 0.33),
+                    1,
+                    0.66,
+                    fill=False,
+                    edgecolor=fs.INK,
+                    linewidth=0.75,
+                    linestyle=(0, (2.2, 1.2)),
+                    zorder=3,
+                )
+            )
+        STATS[f"stop_reasons/{name}/{arm}"] = counts | {"n": n}
+        ax.text(
+            1.03,
+            y,
+            f"{counts['finished']}/{n}",
+            va="center",
+            ha="left",
+            transform=ax.get_yaxis_transform(),
+            color=fs.MUTED,
+        )
+    ax.set_ylim(rows[-1][0] + 0.6, -0.6)
+    ax.set_yticks([r[0] for r in rows], [r[4] for r in rows])
+    for arm in LLM_ARMS:
+        ys = [r[0] for r in rows if r[1] == arm]
+        ax.text(
+            -0.5,
+            (ys[0] + ys[-1]) / 2,
+            ARM_NAME[arm].replace(", ", ",\n"),
+            ha="right",
+            va="center",
+            transform=ax.get_yaxis_transform(),
+        )
+    ax.tick_params(axis="y", length=0, pad=4)
+    ax.spines["left"].set_visible(False)
+    ax.set_xlim(0, 1)
+    ax.set_xticks([0, 0.5, 1])
+    fs.tidy_ticks(ax, "x")
+    ax.set_xlabel("Episodes (fraction)")
     ax.text(
-        pos[0][0] - 0.65, 1.03, "finished", ha="right", va="bottom", fontsize=10, color=fs.MUTED
+        1.03,
+        -1.0,
+        "Finished",
+        va="center",
+        ha="left",
+        transform=ax.get_yaxis_transform(),
+        color=fs.MUTED,
     )
-    ax.set_ylim(0, 1.15)
-    ax.set_ylabel("share of episodes")
-    label_groups(ax, pos)
-    ax.set_xlim(pos[0][0] - 1.6, pos[-1][0] + 1.0)
-    handles = [Patch(facecolor=c, edgecolor=fs.EDGE, label=lab) for _, lab, c in STOPS]
-    ax.legend(
-        handles=handles, loc="upper center", bbox_to_anchor=(0.5, -0.38), ncol=4, frameon=False
+    key = fs.axes_mm(fig, 100.0, top + height + 10.0, 82.0, 7.0)
+    key.set_axis_off()
+    key.legend(
+        handles=fs.outcome_handles([(c, lab) for _, c, lab in STOPS]),
+        loc="center",
+        ncol=2,
+        handlelength=1.0,
+        columnspacing=1.0,
     )
-    ax.set_title(
-        "How LLM episodes ended (non-LLM arms always finish; aborted HTTP 429 attempt not shown)\n"
-        + SAMPLE,
-        fontsize=10.5,
-        loc="left",
-    )
-    fig.subplots_adjust(left=0.1, right=0.99, top=0.8, bottom=0.33)
-    fs.save(fig, out / "stop_reasons.png")
-
-
-# ---------------------------------------------------------------- figure 4
+    fs.panel_label(fig, "c", 100.0, top - 3.0)
 
 
 def pick_example() -> dict:
@@ -374,95 +486,166 @@ def pick_example() -> dict:
     return rows[(len(rows) - 1) // 2]
 
 
-def example_campaign(out: Path) -> None:
+EVENTS = [
+    ("screen", "Screen assay"),
+    ("confirm", "Confirm assay"),
+    ("replicate", "Replicate"),
+    ("propose_candidates", "Propose"),
+    ("check_feasibility", "Check feasibility"),
+    ("surrogate_summary", "Surrogate summary"),
+]
+
+
+def panel_example(fig, top: float) -> None:
     row = pick_example()
     cid = row["campaign_id"]
     specs, orc = oracles("heldout_v2")
+    oracle = orc[cid]
+    span = oracle["f_star"] - oracle["f_mean"]
     trace = ROOT / "reports" / "live_v2" / "traces" / "heldout_v2" / "agent" / f"{cid}_run0.jsonl"
     events = [json.loads(x) for x in trace.read_text(encoding="utf-8").splitlines() if x.strip()]
     steps = [e for e in events if e.get("event") == "step"]
     stop = next(e for e in events if e.get("event") == "stop")
-    budget = specs[cid].budget_units
-    fig, (top, bot) = plt.subplots(
-        2, 1, figsize=(fs.WIDTH, 5.8), sharex=True, gridspec_kw={"height_ratios": [2.2, 1.4]}
-    )
-    kinds = {
-        "screen": ("o", "screen"),
-        "confirm": ("D", "confirm"),
-        "replicate": ("s", "replicate"),
-    }
-    spent, xs, ys = 0.0, [0], [0.0]
+    left, width = 41.0, 122.0
+    ra = fs.axes_mm(fig, left, top, width, 17.0)
+    rc = fs.axes_mm(fig, left, top + 19.5, width, 20.0)
+    obs: dict[str, list[float]] = defaultdict(list)
+    xs, ys, spent = [0], [1.0], 0.0
+    kinds = [k for k, _ in EVENTS]
     for e in steps:
-        res = e["result"]
         tool = e["action"]["tool"]
+        res = e["result"]
+        kind = tool
         if tool in ("measure", "replicate") and res["ok"]:
             o = res["output"]
+            kind = "replicate" if tool == "replicate" else o["fidelity"]
             if not o.get("deduplicated"):
                 spent += o["cost_charged"]
-            kind = "replicate" if tool == "replicate" else o["fidelity"]
             if o["value"] is not None:
-                top.scatter(
-                    e["step"],
-                    o["value"],
-                    marker=kinds[kind][0],
-                    s=34,
-                    color=fs.AGENT,
-                    edgecolor=fs.EDGE,
-                    linewidth=0.8,
-                    zorder=3,
-                )
-        elif tool in ("propose_candidates", "check_feasibility", "surrogate_summary"):
-            top.plot(
-                [e["step"]] * 2,
-                [-0.02, 0.02],
-                color=fs.MUTED,
-                lw=1.0,
-                transform=top.get_xaxis_transform(),
+                obs[o["candidate_id"]].append(o["value"])
+        if kind in kinds:
+            yk = kinds.index(kind)
+            assay = kind in ("screen", "confirm", "replicate")
+            ra.plot(
+                [e["step"]],
+                [yk],
+                marker="|",
+                markersize=6,
+                markeredgewidth=1.4,
+                color=fs.AGENT if assay else fs.INK,
+                linestyle="none",
             )
+        if obs:
+            best = max(sorted(obs), key=lambda c: float(np.mean(obs[c])))
+            ys.append((oracle["f_star"] - oracle["values"][best]) / span)
+        else:
+            ys.append(1.0)
         xs.append(e["step"])
-        ys.append(spent)
-    f_star = orc[cid]["f_star"]
-    top.axhline(f_star, color=fs.EDGE, ls="--", lw=1.0)
-    top.text(
-        steps[-1]["step"] + 0.5,
-        f_star,
-        "true best feasible value",
-        va="bottom",
-        ha="right",
-        fontsize=10,
-    )
-    top.set_ylabel("observed synthetic_score")
-    bot.step(xs, ys, where="post", color=fs.AGENT, lw=1.8)
-    bot.axhline(budget, color=fs.MUTED, ls=":", lw=1.0)
-    bot.text(0.5, budget, f"budget {budget:g} units", va="bottom", fontsize=10, color=fs.MUTED)
-    bot.axvline(steps[-1]["step"], color=fs.OUTCOME["wrong"], lw=1.4)
-    bot.text(
-        steps[-1]["step"] - 0.4,
-        budget * 1.08,
-        f"stop: {stop['stop_reason']}",
-        ha="right",
-        fontsize=10,
-        color=fs.OUTCOME["wrong"],
-    )
-    bot.set_ylim(0, budget * 1.25)
-    bot.set_ylabel("units spent")
-    bot.set_xlabel("agent step")
-    handles = [
-        Line2D([], [], ls="", marker=m, ms=6, color=fs.AGENT, markeredgecolor=fs.EDGE, label=lab)
-        for m, lab in kinds.values()
-    ] + [Line2D([], [], color=fs.MUTED, lw=1.0, label="propose, check or summary (tick)")]
-    top.legend(handles=handles, loc="center left", ncol=1, frameon=False, fontsize=10)
-    fig.suptitle(
-        f"Example campaign {cid}, v2 run 0, agent (gpt-4.1-mini); "
-        f"regret {row['normalized_regret']:.3f}\n"
-        "Selection rule: lower median (5th of 10) of the v2 run-0 agent campaigns "
-        "sorted by regret,\nthen by campaign order",
-        fontsize=10.5,
-        x=0.01,
+    STATS[f"example_campaign/{cid}"] = {
+        "selection": "lower median (5th of 10) of the v2 run-0 agent campaigns by regret",
+        "declared_regret": row["normalized_regret"],
+        "steps": len(steps),
+        "assays": sum(1 for e in steps if e["action"]["tool"] in ("measure", "replicate")),
+        "units_spent": spent,
+        "budget_units": specs[cid].budget_units,
+        "stop_reason": stop["stop_reason"],
+        "final_incumbent_regret": ys[-1],
+    }
+    last = steps[-1]["step"]
+    ra.set_ylim(len(EVENTS) - 0.5, -0.5)
+    ra.set_yticks(range(len(EVENTS)), [lab for _, lab in EVENTS])
+    ra.tick_params(axis="y", length=0)
+    ra.spines["left"].set_visible(False)
+    ra.spines["bottom"].set_visible(False)
+    ra.tick_params(axis="x", length=0, labelbottom=False)
+    for k in range(len(EVENTS)):
+        ra.axhline(k, color=fs.REFERENCE, linewidth=0.4, zorder=0)
+    rc.step(xs, ys, where="post", **fs.line_kw("agent", width=1.2))
+    rc.axhline(row["normalized_regret"], color=fs.MUTED, linewidth=0.6, linestyle=(0, (1, 1.5)))
+    rc.text(
+        9.0,
+        0.93,
+        "declared answer: none (token cap), scored as regret 1",
         ha="left",
+        va="top",
+        color=fs.MUTED,
     )
-    fig.subplots_adjust(left=0.1, right=0.98, top=0.83, bottom=0.1, hspace=0.12)
-    fs.save(fig, out / "example_campaign.png")
+    for a in (ra, rc):
+        a.set_xlim(0, last + 1)
+        a.axvline(last + 0.5, color=fs.INK, linewidth=0.7, zorder=0)
+    rc.text(last + 0.8, 0.8, "stop:\ntoken cap", ha="left", va="center", color=fs.INK)
+    rc.text(
+        last + 0.8,
+        0.25,
+        f"{spent:g} of {specs[cid].budget_units:g}\nunits spent",
+        ha="left",
+        va="center",
+        color=fs.MUTED,
+    )
+    rc.set_ylim(0, max(1.08, max(ys) * 1.05))
+    rc.set_yticks([0, 0.5, 1])
+    fs.tidy_ticks(rc, "y")
+    rc.xaxis.set_major_locator(MultipleLocator(5))
+    rc.xaxis.set_minor_locator(MultipleLocator(1))
+    rc.set_xlabel("Agent step")
+    rc.set_ylabel("Incumbent\nregret")
+    fs.panel_label(fig, "d", 1.5, top - 3.0)
+
+
+def figure1(out: Path) -> list[Path]:
+    fig = fs.figure(fs.FULL_WIDTH, FIG_H)
+    panel_curves(fig, top=9.0)
+    panel_final(fig, top=71.0)
+    panel_stops(fig, top=71.0)
+    panel_example(fig, top=140.0)
+    return save(fig, out, "fig1_main")
+
+
+# Supplementary --------------------------------------------------------------
+
+
+def figure_s1(out: Path) -> list[Path]:
+    rows = []
+    for arm in LLM_ARMS:
+        for name, _, label, second in ROUNDS:
+            data = by_arm(results(name))
+            if arm in data:
+                m, lo, hi, n = paired(
+                    data[arm], data["tuned_acquisition"], f"paired_vs_tuned/{name}/{arm}"
+                )
+                rows.append((f"{ARM_NAME[arm]}, {label}", arm, second, m, lo, hi, n))
+    v2 = by_arm(results("live_v2"))
+    paired(v2["agent"], v2["single_call"], "paired_vs_single_call/live_v2/agent")
+    ys, y = [], 0.0
+    for r in rows:
+        y += 0.5 if r[2] else 0.0
+        ys.append(y)
+        y += 1.5 if r[2] else 1.0
+    fig = fs.figure(fs.SINGLE_WIDTH * 1.35, 64)
+    ax = fs.axes_mm(fig, 46, 4, 62, 46)
+    for i, (_, arm, second, m, lo, hi, _n) in zip(ys, rows, strict=True):
+        fs.dot_interval(ax, i, m, lo, hi, ARM_TYPE[arm], second)
+        ax.text(
+            1.02,
+            i,
+            f"n = {_n}",
+            transform=ax.get_yaxis_transform(),
+            va="center",
+            ha="left",
+            color=fs.MUTED,
+        )
+    fs.ref_line(ax, 0.0, "x")
+    ax.set_yticks(ys, [r[0] for r in rows])
+    ax.set_ylim(ys[-1] + 0.5, -1.3)
+    ax.set_xlim(-0.45, 1.02)
+    ax.spines["bottom"].set_bounds(-0.4, 1.0)
+    ax.set_xticks([-0.4, 0, 0.4, 0.8, 1.0])
+    ax.xaxis.set_minor_locator(MultipleLocator(0.1))
+    fs.tidy_ticks(ax, "x")
+    ax.set_xlabel("Paired difference in final regret\nvs tuned GP-UCB (arm minus rule)")
+    ax.text(-0.02, -1.0, "arm better", ha="right", va="center", color=fs.MUTED)
+    ax.text(0.02, -1.0, "tuned rule better", ha="left", va="center", color=fs.MUTED)
+    return save(fig, out, "figS1_paired_vs_tuned")
 
 
 def compact(path: Path) -> None:
@@ -481,23 +664,45 @@ def compact(path: Path) -> None:
     img = Image.fromarray(index, mode="P")
     pal = keep.astype(np.uint8).ravel().tolist()
     img.putpalette(pal + [0] * (768 - len(pal)))
-    img.save(path, optimize=True)
+    img.save(path, optimize=True, dpi=(fs.DPI, fs.DPI))
 
 
-def main() -> None:
+def save(fig, out: Path, stem: str) -> list[Path]:
+    paths = fs.save(fig, out, stem)
+    compact(out / f"{stem}.png")
+    return paths
+
+
+def main(argv: list[str] | None = None) -> list[Path]:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=ROOT / "docs" / "figures")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     fs.apply()
-    regret_by_arm(args.out)
-    regret_vs_spend(args.out)
-    stop_reasons(args.out)
-    example_campaign(args.out)
-    for name in FIGURES:
-        p = args.out / name
-        compact(p)
-        print(f"{p.name}: {p.stat().st_size / 1024:.0f} KB")
+    paths = figure1(args.out)
+    paths += figure_s1(args.out)
+
+    def rnd(v):
+        if isinstance(v, float):
+            return round(v, 4)
+        if isinstance(v, list):
+            return [rnd(x) for x in v]
+        if isinstance(v, dict):
+            return {k: rnd(x) for k, x in v.items()}
+        return v
+
+    meta = {
+        "interval": "percentile bootstrap 95% over campaigns for median curves and paired "
+        "differences",
+        "bootstrap_resamples": fs.N_BOOT,
+        "seed": fs.SEED,
+        "resampling_unit": "campaign",
+    }
+    stats = args.out / "figure_stats.json"
+    text = json.dumps({"method": meta, "values": rnd(dict(sorted(STATS.items())))}, indent=1)
+    stats.write_text(text + "\n", encoding="utf-8", newline="\n")
+    return paths + [stats]
 
 
 if __name__ == "__main__":
-    main()
+    for p in main():
+        print(f"wrote {p.relative_to(ROOT).as_posix() if p.is_relative_to(ROOT) else p}")
