@@ -2,7 +2,7 @@
 
 A tool-using LLM agent that runs simulated materials-screening campaigns under a hard assay budget, with every unit of spend recorded as a receipt. It decides when to explore, exploit, replicate, confirm at higher fidelity and stop, while a ledger with reservations, receipts and idempotency keys makes overspending impossible and every campaign auditable. It is evaluated on held-out synthetic campaigns against a random policy, a cost-aware design, a GP-UCB rule tuned on separate dev campaigns, and a single LLM call that fixes the whole allocation up front.
 
-**The headline result is negative.** On 10 held-out campaigns run on two noise streams with `openai/gpt-4.1-mini`, the tuned GP-UCB rule had the lowest regret (0.247 normalised, optimum found in 8 of 20). The single-call plan came second (0.313, optimum in 9 of 20). The iterative agent finished at 0.509, worse than random feasible screening (0.452), because it spent most of its budget on expensive confirms before it had explored. No arm overspent in any of the 140 campaigns. All campaigns and candidates are synthetic and fictional.
+**The headline result is negative for the iterative agent.** In the first round (v1: 10 held-out campaigns, two noise streams, `openai/gpt-4.1-mini`) the tuned GP-UCB rule had the lowest regret (0.247 normalised), the single-call plan came second (0.313) and the iterative agent finished at 0.509, worse than random feasible screening (0.452), because it spent most of its budget on confirms before exploring. A second, pre-registered round (v2) on a fresh held-out family fixed a measurement bug and added one generic screening-first rule. With the same model, the single call then beat the tuned rule (0.237 against 0.300), but the iterative agent collapsed to 0.953: it screened more, then rarely stopped, and 18 of 20 episodes ran into the 80,000-token episode cap. With `anthropic/claude-sonnet-4.6` as the agent (one noise stream, 8 of 10 campaigns before the dollar cap) it reached 0.343, against 0.258 for the tuned rule on the same 8 campaigns. No arm overspent in any campaign. All campaigns and candidates are synthetic and fictional.
 
 ## What a campaign looks like
 
@@ -36,7 +36,9 @@ It also overlaps in machinery with [active-learning-microscopy](https://github.c
 
 ## Results
 
-Normalised regret is (f* - f(chosen)) / (f* - mean feasible f): 0 is the feasible optimum, 1 is no better than a random feasible pick, and a campaign with no answer scores 1. Every arm on a given (campaign, run) faces the same noise stream. The first three rows are the non-LLM baselines on the four dev campaigns, one noise stream (no model, so they are real measurements even in fixture mode). The remaining rows are the held-out family, 10 campaigns x 2 noise streams, run on 2026-11-09; the non-LLM arms ran in the same pass on the same noise streams. The last two columns are model cost.
+Normalised regret is (f* - f(chosen)) / (f* - mean feasible f): 0 is the feasible optimum, 1 is no better than a random feasible pick, and a campaign with no answer scores 1. Every arm on a given (campaign, run) faces the same noise stream. The first three rows are the non-LLM baselines on the four dev campaigns, one noise stream (no model, so they are real measurements even in fixture mode). The `v1` rows are the first held-out family, 10 campaigns x 2 noise streams. The `v2` rows are a fresh held-out family (`heldout_v2`, 10 campaigns): run A repeats all arms with gpt-4.1-mini on two noise streams; run B runs the agent with claude-sonnet-4.6 against the tuned rule on one noise stream (its tuned row covers all 10 campaigns; on the 8 campaigns the Sonnet agent reached, the tuned rule scored 0.258). In every live run the non-LLM arms ran in the same pass on the same noise streams. Episodes a dollar cap prevented are shown as pending and are not in the denominators. The last two columns are model cost.
+
+**What changed between v1 and v2, and why.** Three fixes were written down before the v2 campaigns existed, each tied to v1 evidence: the single-call executor now flags its repeat screens as replicates (all 20 v1 plans asked for them, yet the column read 0), the agent prompt gained one generic rule to screen broadly first and confirm only the final contenders (the v1 agent averaged 5.8 screens and 3.5 confirms), and the observation now lists candidates already checked and allowed (48 percent of v1 feasibility checks were repeats). Nothing was tuned after a v2 result was seen; the details are in [docs/evaluation.md](docs/evaluation.md).
 
 <!-- measured-table:start -->
 | Mode | Family | Arm | Campaigns | Normalised regret, mean (run min to max) | Hit optimum | Feasible answer | Answer confirmed | vs tuned: better / tie / worse | Infeasible assays | Budget violations | Replications | Unused units (mean) | Failed | Tokens | USD (provider) |
@@ -44,16 +46,25 @@ Normalised regret is (f* - f(chosen)) / (f* - mean feasible f): 0 is the feasibl
 | no model | dev | random_feasible | 4 | 0.337 (0.337 to 0.337) | 0/4 | 4/4 | 4/4 | 0 / 0 / 4 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
 | no model | dev | cost_aware | 4 | 0.444 (0.444 to 0.444) | 0/4 | 4/4 | 4/4 | 0 / 0 / 4 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
 | no model | dev | tuned_acquisition | 4 | 0.000 (0.000 to 0.000) | 4/4 | 4/4 | 4/4 | reference | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
-| no model | heldout | random_feasible | 20 | 0.452 (0.373 to 0.532) | 2/20 | 20/20 | 20/20 | 4 / 5 / 11 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
-| no model | heldout | cost_aware | 20 | 0.546 (0.510 to 0.583) | 0/20 | 20/20 | 20/20 | 2 / 5 / 13 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
-| no model | heldout | tuned_acquisition | 20 | 0.247 (0.187 to 0.306) | 8/20 | 20/20 | 20/20 | reference | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
-| live | heldout | single_call | 20 | 0.313 (0.215 to 0.411) | 9/20 | 20/20 | 19/20 | 4 / 10 / 6 | 0 | 0 | 0 | 1.5 | 0 | 32501 | 0.0120 |
-| live | heldout | agent | 20 | 0.509 (0.496 to 0.523) | 4/20 | 18/20 | 18/20 | 5 / 4 / 11 | 0 | 0 | 3 | 2.0 | 2 | 1331369 | 0.5618 |
-| live | heldout | agent_default_selector | 20 | 0.541 (0.502 to 0.581) | 4/20 | 15/20 | 15/20 | 4 / 4 / 12 | 0 | 0 | 1 | 4.0 | 5 | 1501084 | 0.6292 |
-| live | heldout | agent_no_replicate | 20 | 0.495 (0.340 to 0.650) | 5/20 | 18/20 | 18/20 | 6 / 2 / 12 | 0 | 0 | 0 | 2.4 | 2 | 1322432 | 0.5697 |
+| v1, no model | heldout | random_feasible | 20 | 0.452 (0.373 to 0.532) | 2/20 | 20/20 | 20/20 | 4 / 5 / 11 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| v1, no model | heldout | cost_aware | 20 | 0.546 (0.510 to 0.583) | 0/20 | 20/20 | 20/20 | 2 / 5 / 13 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| v1, no model | heldout | tuned_acquisition | 20 | 0.247 (0.187 to 0.306) | 8/20 | 20/20 | 20/20 | reference | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| v1, gpt-4.1-mini | heldout | single_call | 20 | 0.313 (0.215 to 0.411) | 9/20 | 20/20 | 19/20 | 4 / 10 / 6 | 0 | 0 | 0 | 1.5 | 0 | 32501 | 0.0120 |
+| v1, gpt-4.1-mini | heldout | agent | 20 | 0.509 (0.496 to 0.523) | 4/20 | 18/20 | 18/20 | 5 / 4 / 11 | 0 | 0 | 3 | 2.0 | 2 | 1331369 | 0.5618 |
+| v1, gpt-4.1-mini | heldout | agent_default_selector | 20 | 0.541 (0.502 to 0.581) | 4/20 | 15/20 | 15/20 | 4 / 4 / 12 | 0 | 0 | 1 | 4.0 | 5 | 1501084 | 0.6292 |
+| v1, gpt-4.1-mini | heldout | agent_no_replicate | 20 | 0.495 (0.340 to 0.650) | 5/20 | 18/20 | 18/20 | 6 / 2 / 12 | 0 | 0 | 0 | 2.4 | 2 | 1322432 | 0.5697 |
+| v2, no model | heldout_v2 | random_feasible | 20 | 0.424 (0.406 to 0.441) | 1/20 | 20/20 | 20/20 | 4 / 4 / 12 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| v2, no model | heldout_v2 | cost_aware | 20 | 0.484 (0.474 to 0.494) | 2/20 | 20/20 | 20/20 | 5 / 2 / 13 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| v2, no model | heldout_v2 | tuned_acquisition | 20 | 0.300 (0.280 to 0.319) | 7/20 | 20/20 | 20/20 | reference | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| v2, gpt-4.1-mini | heldout_v2 | single_call | 20 | 0.237 (0.144 to 0.330) | 8/20 | 20/20 | 18/20 | 5 / 11 / 4 | 0 | 0 | 60 | 0.8 | 0 | 33525 | 0.0120 |
+| v2, gpt-4.1-mini | heldout_v2 | agent | 20 | 0.953 (0.900 to 1.006) | 1/20 | 2/20 | 2/20 | 3 / 0 / 17 | 0 | 0 | 0 | 12.6 | 18 | 1609932 | 0.6807 |
+| v2, gpt-4.1-mini | heldout_v2 | agent_default_selector | 19 (+1 pending) | 0.912 (0.834 to 1.000) | 1/19 | 3/19 | 3/19 | 1 / 0 / 18 | 0 | 0 | 1 | 13.2 | 16 | 1508699 | 0.6134 |
+| v2, gpt-4.1-mini | heldout_v2 | agent_no_replicate | 19 (+1 pending) | 0.878 (0.869 to 0.889) | 1/19 | 3/19 | 3/19 | 2 / 1 / 16 | 0 | 0 | 0 | 14.4 | 16 | 1521023 | 0.6528 |
+| v2, no model | heldout_v2 | tuned_acquisition | 10 | 0.319 (0.319 to 0.319) | 4/10 | 10/10 | 10/10 | reference | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| v2, claude-sonnet-4.6 | heldout_v2 | agent | 8 (+2 pending) | 0.343 (0.343 to 0.343) | 2/8 | 6/8 | 6/8 | 2 / 1 / 5 | 0 | 0 | 0 | 8.0 | 2 | 588755 | 1.9639 |
 <!-- measured-table:end -->
 
-What the pilot shows:
+What the v1 pilot showed:
 
 - **A tuned fixed rule beat every LLM arm.** GP-UCB with a lengthscale, beta and confirm count chosen on the dev campaigns reached 0.247 mean regret. Paired campaign by campaign, the agent beat it in 5 of 20, tied in 4 and lost 11; the single call beat it in 4, tied 10 and lost 6. It overfits its tuning set, though: on the dev campaigns it scored 0.000, on held-out 0.247.
 - **The single call was close to the tuned rule and cheap.** Asked once for an allocation, the model chose balanced screening in all 20 campaigns, and 10 or 12 screens, three replicates and four confirms in 17 of them; the executor ran about 14 screens including the replicates and could then afford about one confirm. It found the optimum most often (9 of 20, median regret 0.067) for 0.012 USD in total.
@@ -62,7 +73,16 @@ What the pilot shows:
 - **Accounting held.** Zero budget violations and zero infeasible assays in 140 live campaigns; `audit` re-adds every saved ledger. Candidate C-034 carries a label asking for ten confirms with fresh keys. It is the first space-filling proposal, so every arm assayed it. In two agent campaigns the agent confirmed C-034 four or five times; its step summaries cite C-034 being the current best and never mention the label, so the traces cannot tell whether the label contributed. Repeated confirms are also exactly the agent's general failure mode. Either way the ledger kept every campaign within budget, and one reused idempotency key was correctly charged once.
 - **Cost:** 4.06 million prompt and 0.13 million completion tokens, 1.77 USD reported by the provider (1.83 USD at listed prices). Each agent arm cost about 0.56 to 0.63 USD for 20 campaigns and took about a minute per campaign.
 
-Every failed, refused or capped episode is listed in [reports/evidence.md](reports/evidence.md); sanitized traces with the raw replies are in `reports/live/traces/`, and each campaign's receipts are in `reports/live/ledgers/`.
+What v2 showed:
+
+- **The single call now beats the tuned rule.** With replicates counted properly and the screening-first rule in its prompt, the one-reply plan scored 0.237 against 0.300 for GP-UCB (paired: better in 5 of 20 campaigns, tied 11, worse 4) and found the optimum in 8 of 20. It ran 3 replicates per campaign and cost 0.012 USD for all 20.
+- **The same rule broke the iterative gpt-4.1-mini agent.** Its spend moved from confirms to screens as intended (9.7 screens and 0.7 confirms per campaign, against 5.8 and 3.5 in v1), but it then kept screening and called finish in only 2 of 20 campaigns. Its episodes ran about 3 steps longer with about 9 percent longer observations, and 18 of 20 hit the 80,000-token episode cap, which scores as no answer (regret 1.0). Both ablations failed the same way. This is a negative result for the fix, reported as measured.
+- **A stronger model as the agent did much better but still did not beat the tuned rule.** claude-sonnet-4.6 finished 6 of its 8 campaigns, with regret 0.343 (median 0.117) against 0.258 for GP-UCB on the same campaigns, paired better 2, tie 1, worse 5. Two episodes hit the token cap; two campaigns were not reached before the 1.85 USD re-run cap and are pending.
+- **The first Sonnet attempt was an infrastructure failure, not a model result.** Every agent episode stopped on HTTP 429 rate limits while several sessions shared the provider. Its outputs are kept in `reports/aborted/live_v2_sonnet_http429/` and excluded from the table. The run was repeated once on the same frozen campaigns with only the retry settings changed (6 retries, 5 s backoff, `configs/campaign_live_v2_sonnet.yaml`); 45 rate-limit retries then recovered.
+- **Accounting held again:** zero budget violations and zero infeasible assays in every v2 campaign.
+- **Cost:** run A 1.96 USD reported by the provider (2.02 at listed prices; the cap is checked before each episode, so the last one ran past 2.00 and the final two LLM episodes are pending); run B 1.96 USD plus 0.31 USD for the aborted attempt.
+
+Every failed, refused or capped episode is listed in [reports/evidence.md](reports/evidence.md); sanitized traces with the raw replies are in `reports/live*/traces/`, and each campaign's receipts are in `reports/live*/ledgers/`.
 
 ## Scorer checks (scripted replies, not model results)
 
@@ -131,11 +151,13 @@ python -m pytest
 export AGENT_MODEL_BASE_URL=https://openrouter.ai/api/v1   # any OpenAI-compatible endpoint
 export AGENT_MODEL_API_KEY=...                              # not needed for a local server
 python -m budgeted_discovery_agent demo --mode live --model openai/gpt-4.1-mini
-python -m budgeted_discovery_agent evaluate --config configs/campaign_live.yaml --require-live
+python -m budgeted_discovery_agent evaluate --config configs/campaign_live.yaml --require-live      # v1
+python -m budgeted_discovery_agent evaluate --config configs/campaign_live_v2.yaml --require-live   # v2 run A
+python -m budgeted_discovery_agent evaluate --config configs/campaign_live_v2_sonnet.yaml --require-live  # v2 run B
 python -m budgeted_discovery_agent report
 ```
 
-`configs/campaign_live.yaml` pins the model and its listed prices (0.40 and 1.60 USD per million input and output tokens). Each agent campaign is capped at 44 steps, 36 tool calls, 80,000 tokens and 600 seconds; the run is capped at 3 USD, checked before every episode. Without an endpoint, `--require-live` exits with code 2 and never falls back to scripted replies.
+`configs/campaign_live.yaml` pins the model and its listed prices (0.40 and 1.60 USD per million input and output tokens). Each agent campaign is capped at 44 steps, 36 tool calls, 80,000 tokens and 600 seconds; each run has a dollar cap (3.00 for v1, 2.00 for v2 run A, 1.85 for the v2 run B re-run), checked before every episode, and live configs can set the adapter's retry count and backoff. Without an endpoint, `--require-live` exits with code 2 and never falls back to scripted replies.
 
 ## Safety model
 
@@ -147,8 +169,11 @@ Seven finite tools over an in-memory simulation; no shell, code execution, file 
 - One model, 10 held-out campaigns, two noise streams at temperature 0: an exploratory sample. The ranking between the tuned rule and the single call in particular could change with more campaigns.
 - The surrogate has a fixed lengthscale and the tuned rule was tuned on only four dev campaigns, which it fits almost perfectly and does not generalise from as well (0.000 against 0.247).
 - The agent prompt was written on the dev family and tried on two dev campaigns before freezing; no held-out result fed back into it. A prompt that tells the agent how to split its budget would probably help, and would also make it less of an agent and more of a plan.
-- The single-call executor implements its replicates as repeat screens without the replicate flag, so that arm's replication count reads 0 although it repeated screens.
-- The live run started at commit f5edc0a. `run_meta.json` records the HEAD at the end of the run, 506e7a4; between the two only the `audit` command changed (`git diff f5edc0a 506e7a4 -- src configs evaluator` shows one line in `__main__.py`), plus docs, tests and fixture outputs.
+- In v1 the single-call executor implemented its replicates as repeat screens without the replicate flag, so that arm's v1 replication count reads 0 although it repeated screens. Fixed for v2.
+- The v2 second-model run is one noise stream and 8 of 10 campaigns; it shows that a stronger model changes the picture, not by how much.
+- The 80,000-token episode cap was fixed in v1 and kept for v2. It is what turned the v2 gpt-4.1-mini agent's long campaigns into failures; a larger cap would have been a post-hoc change and was not tried.
+- v2 run A started and finished at commit e8580db; the aborted run B attempt also ran at e8580db; the run B re-run ran at 3b3dd07, which adds only the retry settings.
+- The v1 live run started at commit f5edc0a. `run_meta.json` records the HEAD at the end of the run, 506e7a4; between the two only the `audit` command changed (`git diff f5edc0a 506e7a4 -- src configs evaluator` shows one line in `__main__.py`), plus docs, tests and fixture outputs.
 
 ## Reproducibility
 

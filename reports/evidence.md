@@ -38,9 +38,9 @@ Fixture mode replays scripted replies for single_call and the three agent arms, 
 | heldout | agent_no_replicate | ho-noisy | 0 | stopped | max_tool_calls | None | C-043 | 1.0 | 0 | 0 | 0 |
 | heldout | single_call | ho-flat | 0 | failed | malformed_output | None | C-027 | 1.0 | 0 | 0 | 1 |
 
-## Live mode
+## Live v1 (held-out v1, gpt-4.1-mini)
 
-Live model results on the held-out family; non-LLM rows share the same noise streams.
+v1 live pilot on the v1 held-out family; non-LLM rows share the same noise streams.
 
 - Commit: `506e7a4079b70299e067fd2e7ae132230c7c4bed` (working tree dirty: False)
 - Model: openai/gpt-4.1-mini; agentcore 0.1.2
@@ -85,6 +85,110 @@ Live model results on the held-out family; non-LLM rows share the same noise str
 | heldout | agent | ho-flat | 1 | stopped | max_tool_calls | None | C-027 | 1.0 | 0 | 0 | 0 |
 | heldout | agent_no_replicate | ho-flat | 1 | complete | finished | C-010 | C-027 | 1.2989 | 0 | 1 | 0 |
 
+## Live v2, run A (held-out v2, gpt-4.1-mini)
+
+v2 run A: pre-registered fixes, fresh held-out v2 family, same model as v1.
+
+- Commit: `e8580db2764fdd5fc712588a79101a949f6efb25` (working tree dirty: False)
+- Model: openai/gpt-4.1-mini; agentcore 0.1.2
+- Prompt: campaign-prompts-v2, sha256 `ea4d52276b64ffc1`
+- Config sha256: `a65b68b0877cd0de`; tuned acquisition: {'beta': 0.5, 'lengthscale': 0.15, 'n_confirm': 1}
+- Run: 2026-11-09T14:14:57+09:00 to 2026-11-09T15:06:48+09:00
+- Hardware: Windows-10-10.0.26300-SP0, Python 3.11.9
+- Campaign episodes scored: 140
+- Tokens: {'completion': 123736, 'prompt': 4549443}, USD at listed prices: 2.0177548, USD reported by provider: 1.958923, adapter retries: 0
+
+### Input hashes
+
+- candidates: `7b332d9ee44be070`
+- heldout_v2/campaigns: `e470dff112add875`
+- tuned_params: `f8a623418795df2c`
+
+### Every failed, infeasible, refused or malformed episode
+
+| Family | Arm | Campaign | Run | Status | Stop | Chosen | True best | Regret | Infeasible | Refused | Malformed |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| heldout_v2 | agent | h2-valley | 0 | stopped | max_tokens | None | C-003 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_default_selector | h2-valley | 0 | stopped | max_tokens | None | C-003 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-plateau-edge | 0 | stopped | max_tokens | None | C-056 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_default_selector | h2-plateau-edge | 0 | stopped | max_tokens | None | C-056 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_no_replicate | h2-plateau-edge | 0 | stopped | max_tokens | None | C-056 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-chain | 0 | stopped | max_tokens | None | C-018 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_default_selector | h2-chain | 0 | stopped | max_tokens | None | C-018 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_no_replicate | h2-chain | 0 | stopped | max_tokens | None | C-018 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-fourpeak | 0 | stopped | max_tokens | None | C-023 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_no_replicate | h2-fourpeak | 0 | stopped | max_tool_calls | None | C-023 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-negbias | 0 | stopped | max_tokens | None | C-053 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_no_replicate | h2-negbias | 0 | stopped | max_tokens | None | C-053 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-wedge-peak | 0 | stopped | max_tokens | None | C-047 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_default_selector | h2-wedge-peak | 0 | stopped | max_tokens | None | C-047 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_no_replicate | h2-wedge-peak | 0 | stopped | max_tokens | None | C-047 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-broad-noisy | 0 | stopped | max_tokens | None | C-036 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_default_selector | h2-broad-noisy | 0 | stopped | max_tokens | None | C-036 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_no_replicate | h2-broad-noisy | 0 | stopped | max_tool_calls | None | C-036 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-cluster-bias | 0 | stopped | max_tokens | None | C-031 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_default_selector | h2-cluster-bias | 0 | stopped | max_tokens | None | C-031 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_no_replicate | h2-cluster-bias | 0 | stopped | max_tokens | None | C-031 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-steep | 0 | stopped | max_tokens | None | C-063 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_default_selector | h2-steep | 0 | stopped | max_tokens | None | C-063 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_no_replicate | h2-steep | 0 | stopped | max_tokens | None | C-063 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_default_selector | h2-valley | 1 | stopped | max_tokens | None | C-003 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_no_replicate | h2-valley | 1 | stopped | max_tokens | None | C-003 | 1.0 | 0 | 1 | 0 |
+| heldout_v2 | agent | h2-plateau-edge | 1 | stopped | max_tokens | None | C-056 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_default_selector | h2-plateau-edge | 1 | stopped | max_tokens | None | C-056 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_no_replicate | h2-plateau-edge | 1 | stopped | max_tokens | None | C-056 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-chain | 1 | stopped | max_tokens | None | C-018 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_default_selector | h2-chain | 1 | stopped | max_tokens | None | C-018 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_no_replicate | h2-chain | 1 | stopped | max_tokens | None | C-018 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-fourpeak | 1 | stopped | max_tokens | None | C-023 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_default_selector | h2-fourpeak | 1 | stopped | max_tokens | None | C-023 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_no_replicate | h2-fourpeak | 1 | stopped | max_tokens | None | C-023 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-negbias | 1 | stopped | max_tokens | None | C-053 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_default_selector | h2-negbias | 1 | stopped | max_tokens | None | C-053 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_no_replicate | h2-negbias | 1 | stopped | max_tokens | None | C-053 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-wedge-peak | 1 | stopped | max_tokens | None | C-047 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_default_selector | h2-wedge-peak | 1 | stopped | max_tokens | None | C-047 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-broad-noisy | 1 | stopped | max_tokens | None | C-036 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_default_selector | h2-broad-noisy | 1 | stopped | max_tokens | None | C-036 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_no_replicate | h2-broad-noisy | 1 | stopped | max_tokens | None | C-036 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-cluster-bias | 1 | stopped | max_tokens | None | C-031 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_default_selector | h2-cluster-bias | 1 | stopped | max_tokens | None | C-031 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_no_replicate | h2-cluster-bias | 1 | stopped | max_tokens | None | C-031 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-steep | 1 | stopped | max_tokens | None | C-063 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_default_selector | h2-steep | 1 | stopped | max_tokens | None | C-063 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent_no_replicate | h2-steep | 1 | stopped | max_tokens | None | C-063 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-tight-tie | 1 | stopped | max_tokens | None | C-051 | 1.0 | 0 | 1 | 0 |
+| heldout_v2 | agent_default_selector | h2-tight-tie | 1 | failed | run_budget_exhausted | None | C-051 | 1.0 | 0 | 0 | None |
+| heldout_v2 | agent_no_replicate | h2-tight-tie | 1 | failed | run_budget_exhausted | None | C-051 | 1.0 | 0 | 0 | None |
+
+## Live v2, run B (held-out v2, second model)
+
+v2 run B: second model, agent arm and tuned GP-UCB only, one run.
+
+- Commit: `3b3dd071e4de154f2a56032fac19e58d3ccf06a9` (working tree dirty: False)
+- Model: anthropic/claude-sonnet-4.6; agentcore 0.1.2
+- Prompt: campaign-prompts-v2, sha256 `ea4d52276b64ffc1`
+- Config sha256: `a448070522acd6c6`; tuned acquisition: {'beta': 0.5, 'lengthscale': 0.15, 'n_confirm': 1}
+- Run: 2026-11-09T14:23:41+09:00 to 2026-11-09T14:40:27+09:00
+- Hardware: Windows-10-10.0.26300-SP0, Python 3.11.9
+- Campaign episodes scored: 20
+- Tokens: {'completion': 16467, 'prompt': 572288}, USD at listed prices: 1.963869, USD reported by provider: 1.963869, adapter retries: 45
+
+### Input hashes
+
+- candidates: `7b332d9ee44be070`
+- heldout_v2/campaigns: `e470dff112add875`
+- tuned_params: `f8a623418795df2c`
+
+### Every failed, infeasible, refused or malformed episode
+
+| Family | Arm | Campaign | Run | Status | Stop | Chosen | True best | Regret | Infeasible | Refused | Malformed |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| heldout_v2 | agent | h2-negbias | 0 | stopped | max_tokens | None | C-053 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-broad-noisy | 0 | stopped | max_tokens | None | C-036 | 1.0 | 0 | 0 | 0 |
+| heldout_v2 | agent | h2-steep | 0 | failed | run_budget_exhausted | None | C-063 | 1.0 | 0 | 0 | None |
+| heldout_v2 | agent | h2-tight-tie | 0 | failed | run_budget_exhausted | None | C-051 | 1.0 | 0 | 0 | None |
+
 ## Measured results
 
 | Mode | Family | Arm | Campaigns | Normalised regret, mean (run min to max) | Hit optimum | Feasible answer | Answer confirmed | vs tuned: better / tie / worse | Infeasible assays | Budget violations | Replications | Unused units (mean) | Failed | Tokens | USD (provider) |
@@ -92,13 +196,22 @@ Live model results on the held-out family; non-LLM rows share the same noise str
 | no model | dev | random_feasible | 4 | 0.337 (0.337 to 0.337) | 0/4 | 4/4 | 4/4 | 0 / 0 / 4 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
 | no model | dev | cost_aware | 4 | 0.444 (0.444 to 0.444) | 0/4 | 4/4 | 4/4 | 0 / 0 / 4 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
 | no model | dev | tuned_acquisition | 4 | 0.000 (0.000 to 0.000) | 4/4 | 4/4 | 4/4 | reference | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
-| no model | heldout | random_feasible | 20 | 0.452 (0.373 to 0.532) | 2/20 | 20/20 | 20/20 | 4 / 5 / 11 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
-| no model | heldout | cost_aware | 20 | 0.546 (0.510 to 0.583) | 0/20 | 20/20 | 20/20 | 2 / 5 / 13 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
-| no model | heldout | tuned_acquisition | 20 | 0.247 (0.187 to 0.306) | 8/20 | 20/20 | 20/20 | reference | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
-| live | heldout | single_call | 20 | 0.313 (0.215 to 0.411) | 9/20 | 20/20 | 19/20 | 4 / 10 / 6 | 0 | 0 | 0 | 1.5 | 0 | 32501 | 0.0120 |
-| live | heldout | agent | 20 | 0.509 (0.496 to 0.523) | 4/20 | 18/20 | 18/20 | 5 / 4 / 11 | 0 | 0 | 3 | 2.0 | 2 | 1331369 | 0.5618 |
-| live | heldout | agent_default_selector | 20 | 0.541 (0.502 to 0.581) | 4/20 | 15/20 | 15/20 | 4 / 4 / 12 | 0 | 0 | 1 | 4.0 | 5 | 1501084 | 0.6292 |
-| live | heldout | agent_no_replicate | 20 | 0.495 (0.340 to 0.650) | 5/20 | 18/20 | 18/20 | 6 / 2 / 12 | 0 | 0 | 0 | 2.4 | 2 | 1322432 | 0.5697 |
+| v1, no model | heldout | random_feasible | 20 | 0.452 (0.373 to 0.532) | 2/20 | 20/20 | 20/20 | 4 / 5 / 11 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| v1, no model | heldout | cost_aware | 20 | 0.546 (0.510 to 0.583) | 0/20 | 20/20 | 20/20 | 2 / 5 / 13 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| v1, no model | heldout | tuned_acquisition | 20 | 0.247 (0.187 to 0.306) | 8/20 | 20/20 | 20/20 | reference | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| v1, gpt-4.1-mini | heldout | single_call | 20 | 0.313 (0.215 to 0.411) | 9/20 | 20/20 | 19/20 | 4 / 10 / 6 | 0 | 0 | 0 | 1.5 | 0 | 32501 | 0.0120 |
+| v1, gpt-4.1-mini | heldout | agent | 20 | 0.509 (0.496 to 0.523) | 4/20 | 18/20 | 18/20 | 5 / 4 / 11 | 0 | 0 | 3 | 2.0 | 2 | 1331369 | 0.5618 |
+| v1, gpt-4.1-mini | heldout | agent_default_selector | 20 | 0.541 (0.502 to 0.581) | 4/20 | 15/20 | 15/20 | 4 / 4 / 12 | 0 | 0 | 1 | 4.0 | 5 | 1501084 | 0.6292 |
+| v1, gpt-4.1-mini | heldout | agent_no_replicate | 20 | 0.495 (0.340 to 0.650) | 5/20 | 18/20 | 18/20 | 6 / 2 / 12 | 0 | 0 | 0 | 2.4 | 2 | 1322432 | 0.5697 |
+| v2, no model | heldout_v2 | random_feasible | 20 | 0.424 (0.406 to 0.441) | 1/20 | 20/20 | 20/20 | 4 / 4 / 12 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| v2, no model | heldout_v2 | cost_aware | 20 | 0.484 (0.474 to 0.494) | 2/20 | 20/20 | 20/20 | 5 / 2 / 13 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| v2, no model | heldout_v2 | tuned_acquisition | 20 | 0.300 (0.280 to 0.319) | 7/20 | 20/20 | 20/20 | reference | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| v2, gpt-4.1-mini | heldout_v2 | single_call | 20 | 0.237 (0.144 to 0.330) | 8/20 | 20/20 | 18/20 | 5 / 11 / 4 | 0 | 0 | 60 | 0.8 | 0 | 33525 | 0.0120 |
+| v2, gpt-4.1-mini | heldout_v2 | agent | 20 | 0.953 (0.900 to 1.006) | 1/20 | 2/20 | 2/20 | 3 / 0 / 17 | 0 | 0 | 0 | 12.6 | 18 | 1609932 | 0.6807 |
+| v2, gpt-4.1-mini | heldout_v2 | agent_default_selector | 19 (+1 pending) | 0.912 (0.834 to 1.000) | 1/19 | 3/19 | 3/19 | 1 / 0 / 18 | 0 | 0 | 1 | 13.2 | 16 | 1508699 | 0.6134 |
+| v2, gpt-4.1-mini | heldout_v2 | agent_no_replicate | 19 (+1 pending) | 0.878 (0.869 to 0.889) | 1/19 | 3/19 | 3/19 | 2 / 1 / 16 | 0 | 0 | 0 | 14.4 | 16 | 1521023 | 0.6528 |
+| v2, no model | heldout_v2 | tuned_acquisition | 10 | 0.319 (0.319 to 0.319) | 4/10 | 10/10 | 10/10 | reference | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| v2, claude-sonnet-4.6 | heldout_v2 | agent | 8 (+2 pending) | 0.343 (0.343 to 0.343) | 2/8 | 6/8 | 6/8 | 2 / 1 / 5 | 0 | 0 | 0 | 8.0 | 2 | 588755 | 1.9639 |
 
 ## Scorer checks (scripted replies, not model results)
 
@@ -119,11 +232,13 @@ Live model results on the held-out family; non-LLM rows share the same noise str
 - The surrogate is a fixed-hyperparameter GP and the acquisition rule is textbook UCB; this is not a new optimisation algorithm.
 - Normalised regret uses the mean feasible value as the zero-skill reference; a campaign with no answer or an infeasible answer scores 1.0.
 - Fixture results for LLM arms are scripted and say nothing about model quality.
-- The live pilot is one model, 10 held-out campaigns and two runs at temperature 0: an exploratory sample with min and max over runs, not a ranking.
+- Each live run is 10 held-out campaigns at temperature 0 with one or two noise streams: an exploratory sample with min and max over runs, not a ranking. Episodes not run because a run cap was reached are reported as pending and excluded from denominators.
 
 ## Reproduce
 
 - fixture: `python -m budgeted_discovery_agent evaluate --config configs/campaign_fixture.yaml`
 - live: `python -m budgeted_discovery_agent evaluate --config configs/campaign_live.yaml --require-live`
+- live_v2: `python -m budgeted_discovery_agent evaluate --config configs/campaign_live_v2.yaml --require-live`
+- live_v2_sonnet: `python -m budgeted_discovery_agent evaluate --config configs/campaign_live_v2_sonnet.yaml --require-live`
 - report: `python -m budgeted_discovery_agent report`
 - audit: `python -m budgeted_discovery_agent audit`
