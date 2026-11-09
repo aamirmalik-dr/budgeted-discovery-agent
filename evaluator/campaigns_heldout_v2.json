@@ -1,0 +1,647 @@
+{
+ "version": "heldout_v2-v1",
+ "frozen": "2026-11-09",
+ "campaigns": [
+  {
+   "campaign_id": "h2-valley",
+   "family": "heldout_v2",
+   "shape": "two edge peaks around a central valley",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 3301,
+   "surface": {
+    "base": 0.3,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.8,
+       0.2,
+       0.0
+      ],
+      "height": 0.55,
+      "width": 0.15
+     },
+     {
+      "center": [
+       0.0,
+       0.2,
+       0.8
+      ],
+      "height": 0.62,
+      "width": 0.15
+     },
+     {
+      "center": [
+       0.3333333333333333,
+       0.3333333333333333,
+       0.3333333333333333
+      ],
+      "height": -0.2,
+      "width": 0.2
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.06,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "two_disks",
+    "centers": [
+     [
+      0.6,
+      0.0,
+      0.4
+     ],
+     [
+      0.0,
+      0.6,
+      0.4
+     ]
+    ],
+    "radius": 0.15,
+    "reason": "prohibited by synthetic rule V1: two unstable pockets"
+   }
+  },
+  {
+   "campaign_id": "h2-plateau-edge",
+   "family": "heldout_v2",
+   "shape": "broad plateau with a spike at its edge",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 3302,
+   "surface": {
+    "base": 0.2,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.4,
+       0.4,
+       0.2
+      ],
+      "height": 0.5,
+      "width": 0.35
+     },
+     {
+      "center": [
+       0.6,
+       0.4,
+       0.0
+      ],
+      "height": 0.25,
+      "width": 0.08
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.06,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "wedge",
+    "weights": [
+     1,
+     0,
+     0
+    ],
+    "threshold": 0.75,
+    "weights2": [
+     0,
+     0,
+     -1
+    ],
+    "threshold2": -0.15,
+    "reason": "prohibited by synthetic rule V2: A above 0.75 with C below 0.15"
+   }
+  },
+  {
+   "campaign_id": "h2-chain",
+   "family": "heldout_v2",
+   "shape": "elongated chain of bumps along B",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 3303,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.1,
+       0.2,
+       0.7
+      ],
+      "height": 0.5,
+      "width": 0.1
+     },
+     {
+      "center": [
+       0.1,
+       0.35,
+       0.5499999999999999
+      ],
+      "height": 0.55,
+      "width": 0.1
+     },
+     {
+      "center": [
+       0.1,
+       0.5,
+       0.39999999999999997
+      ],
+      "height": 0.62,
+      "width": 0.1
+     },
+     {
+      "center": [
+       0.1,
+       0.6499999999999999,
+       0.25
+      ],
+      "height": 0.58,
+      "width": 0.1
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.06,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "ring",
+    "center": [
+     0.3333333333333333,
+     0.3333333333333333,
+     0.3333333333333333
+    ],
+    "radius": 0.25,
+    "outer": 0.32,
+    "reason": "prohibited by synthetic rule V3: ring-shaped miscibility gap"
+   }
+  },
+  {
+   "campaign_id": "h2-fourpeak",
+   "family": "heldout_v2",
+   "shape": "four small separated peaks",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 3304,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.7,
+       0.1,
+       0.2
+      ],
+      "height": 0.55,
+      "width": 0.09
+     },
+     {
+      "center": [
+       0.1,
+       0.7,
+       0.2
+      ],
+      "height": 0.6,
+      "width": 0.09
+     },
+     {
+      "center": [
+       0.2,
+       0.1,
+       0.7
+      ],
+      "height": 0.66,
+      "width": 0.09
+     },
+     {
+      "center": [
+       0.4,
+       0.4,
+       0.2
+      ],
+      "height": 0.5,
+      "width": 0.09
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.07,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "halfspace",
+    "weights": [
+     0,
+     0,
+     1
+    ],
+    "threshold": 0.75,
+    "reason": "prohibited by synthetic rule V4: component C above 0.75"
+   }
+  },
+  {
+   "campaign_id": "h2-negbias",
+   "family": "heldout_v2",
+   "shape": "screen under-reports the true optimum",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 3305,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.6,
+       0.1,
+       0.3
+      ],
+      "height": 0.7,
+      "width": 0.15
+     },
+     {
+      "center": [
+       0.2,
+       0.6,
+       0.2
+      ],
+      "height": 0.55,
+      "width": 0.15
+     }
+    ],
+    "screen_bias": [
+     {
+      "center": [
+       0.6,
+       0.1,
+       0.3
+      ],
+      "height": -0.3,
+      "width": 0.1
+     }
+    ],
+    "noise": {
+     "screen": 0.05,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "two_disks",
+    "centers": [
+     [
+      0.0,
+      0.0,
+      1.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ]
+    ],
+    "radius": 0.22,
+    "reason": "prohibited by synthetic rule V5: pure B and pure C corners"
+   }
+  },
+  {
+   "campaign_id": "h2-wedge-peak",
+   "family": "heldout_v2",
+   "shape": "largest peak sits behind a wedge-shaped rule",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 3306,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.9,
+       0.1,
+       0.0
+      ],
+      "height": 0.85,
+      "width": 0.12
+     },
+     {
+      "center": [
+       0.5,
+       0.1,
+       0.4
+      ],
+      "height": 0.6,
+      "width": 0.15
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.06,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "wedge",
+    "weights": [
+     1,
+     0,
+     0
+    ],
+    "threshold": 0.65,
+    "weights2": [
+     0,
+     0,
+     -1
+    ],
+    "threshold2": -0.25,
+    "reason": "prohibited by synthetic rule V6: A above 0.65 with C below 0.25"
+   }
+  },
+  {
+   "campaign_id": "h2-broad-noisy",
+   "family": "heldout_v2",
+   "shape": "broad peak, heavy screen noise, larger budget",
+   "budget_units": 48.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 3307,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.3,
+       0.5,
+       0.2
+      ],
+      "height": 0.45,
+      "width": 0.3
+     },
+     {
+      "center": [
+       0.25,
+       0.55,
+       0.2
+      ],
+      "height": 0.1,
+      "width": 0.06
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.18,
+     "confirm": 0.05
+    }
+   },
+   "constraint": {
+    "kind": "band",
+    "weights": [
+     0,
+     0,
+     1
+    ],
+    "threshold": 0.45,
+    "upper": 0.62,
+    "reason": "prohibited by synthetic rule V7: C between 0.45 and 0.62"
+   }
+  },
+  {
+   "campaign_id": "h2-cluster-bias",
+   "family": "heldout_v2",
+   "shape": "positive screen bias on a cluster away from the optimum",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 3308,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.3,
+       0.0,
+       0.7
+      ],
+      "height": 0.6,
+      "width": 0.15
+     },
+     {
+      "center": [
+       0.6,
+       0.3,
+       0.1
+      ],
+      "height": 0.3,
+      "width": 0.2
+     }
+    ],
+    "screen_bias": [
+     {
+      "center": [
+       0.7,
+       0.3,
+       0.0
+      ],
+      "height": 0.35,
+      "width": 0.1
+     },
+     {
+      "center": [
+       0.6,
+       0.4,
+       0.0
+      ],
+      "height": 0.35,
+      "width": 0.1
+     }
+    ],
+    "noise": {
+     "screen": 0.05,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "two_disks",
+    "centers": [
+     [
+      0.0,
+      0.5,
+      0.5
+     ],
+     [
+      0.5,
+      0.5,
+      0.0
+     ]
+    ],
+    "radius": 0.12,
+    "reason": "prohibited by synthetic rule V8: two eutectic pockets"
+   }
+  },
+  {
+   "campaign_id": "h2-steep",
+   "family": "heldout_v2",
+   "shape": "steep trend toward A cut by a rule, plus a minor bump",
+   "budget_units": 36.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 3309,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.7,
+     0.25,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.2,
+       0.2,
+       0.6
+      ],
+      "height": 0.3,
+      "width": 0.12
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.06,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "halfspace",
+    "weights": [
+     1,
+     0,
+     0
+    ],
+    "threshold": 0.8,
+    "reason": "prohibited by synthetic rule V9: component A above 0.8"
+   }
+  },
+  {
+   "campaign_id": "h2-tight-tie",
+   "family": "heldout_v2",
+   "shape": "near-tie between edge peaks on a small budget",
+   "budget_units": 26.0,
+   "cost": {
+    "screen": 2.0,
+    "confirm": 6.0
+   },
+   "seed": 3310,
+   "surface": {
+    "base": 0.1,
+    "trend": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "bumps": [
+     {
+      "center": [
+       0.5,
+       0.5,
+       0.0
+      ],
+      "height": 0.6,
+      "width": 0.12
+     },
+     {
+      "center": [
+       0.0,
+       0.5,
+       0.5
+      ],
+      "height": 0.57,
+      "width": 0.12
+     }
+    ],
+    "screen_bias": [],
+    "noise": {
+     "screen": 0.1,
+     "confirm": 0.02
+    }
+   },
+   "constraint": {
+    "kind": "ring",
+    "center": [
+     0.3333333333333333,
+     0.3333333333333333,
+     0.3333333333333333
+    ],
+    "radius": 0.12,
+    "outer": 0.2,
+    "reason": "prohibited by synthetic rule V10: inner ring"
+   }
+  }
+ ]
+}
