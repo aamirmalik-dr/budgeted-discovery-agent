@@ -1,0 +1,75 @@
+{
+ "adapter_retries": null,
+ "agentcore_version": "0.1.2",
+ "config": {
+  "arms": [
+   "random_feasible",
+   "cost_aware",
+   "tuned_acquisition",
+   "single_call",
+   "agent",
+   "agent_default_selector",
+   "agent_no_replicate"
+  ],
+  "candidates": "tests/fixtures/candidates.json",
+  "checkpoint_dir": "runs",
+  "episode": {
+   "max_completion_tokens": 400,
+   "max_steps": 44,
+   "max_tokens": 80000,
+   "max_tool_calls": 36,
+   "max_wall_seconds": 600.0,
+   "recent_k": 4,
+   "record_timing": true
+  },
+  "families": [
+   "dev",
+   "heldout"
+  ],
+  "fixture_scripts": "tests/fixtures/scripts",
+  "mode": "fixture",
+  "model": null,
+  "output_dir": "reports/fixture",
+  "run_caps": {
+   "max_total_tokens": null,
+   "max_usd": null,
+   "usd_per_mtok_input": null,
+   "usd_per_mtok_output": null
+  },
+  "runs": 1,
+  "tuned_params": "configs/tuned_acquisition.yaml"
+ },
+ "config_sha256": "c1ff79546097b7005d09565a8088e65f7d1819dceedc0596632467121d355b54",
+ "finished_at": "2026-11-09T12:40:17+09:00",
+ "git_commit": "f5edc0a663ff170bf67d244a42a21cce34072450",
+ "git_dirty": false,
+ "hardware": {
+  "machine": "AMD64",
+  "platform": "Windows-10-10.0.26300-SP0",
+  "python": "3.11.9"
+ },
+ "input_hashes": {
+  "candidates": "7b332d9ee44be0707ba9e60ee5533c302ae6c348020e0556415e115129d65e7b",
+  "dev/campaigns": "eaca1ebfd7678eb7a2cff414ef83c28e6151ee5fe9d9dfe8f3746ddfddff97a9",
+  "dev/script/agent": "286a04d1c030fcec30ba2269140dd137e244473e7bad467f65c2606014b571d8",
+  "dev/script/single_call": "53e32bd9da00831ef17393b932a63be66e5fe17c68fe255226a425439497f6bb",
+  "heldout/campaigns": "53b8c83268bec834f07ac9b0c0787314d9c9b1195c64b413d2f709ee0807160c",
+  "heldout/script/agent": "36935ad34e06f596cc4262ed5fe7e4074e092d26919b0804244267db3a58f61a",
+  "heldout/script/single_call": "4f8712d8cd95f6fcf981389295e58c61167a437c284de4a2d5d1547ebfdb40fe",
+  "tuned_params": "f8a623418795df2c55aa066bff4699d89ede8ef166ee38faeea5cc9fd6da70eb"
+ },
+ "mode": "fixture",
+ "model": "none (scripted fixture adapter)",
+ "package_version": "0.1.0",
+ "prompt_sha256": "2006e7b731e7152d5210075075659e72cea1fb9ab112bd8d6bfbab6bb436b631",
+ "prompt_version": "campaign-prompts-v1",
+ "started_at": "2026-11-09T12:35:51+09:00",
+ "tokens": null,
+ "tuned_params": {
+  "beta": 0.5,
+  "lengthscale": 0.15,
+  "n_confirm": 1
+ },
+ "usd": null,
+ "usd_reported_by_provider": null
+}

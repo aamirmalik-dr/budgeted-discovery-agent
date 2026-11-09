@@ -1,0 +1,332 @@
+{
+ "campaign_id": "dev-smooth",
+ "arm": "random_feasible",
+ "run": 0,
+ "budget_units": 36.0,
+ "spent_units": 36.0,
+ "chosen": "C-056",
+ "receipts": [
+  {
+   "receipt_id": "RC-001",
+   "key": "screen-C-037-1",
+   "candidate_id": "C-037",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-001"
+  },
+  {
+   "receipt_id": "RC-002",
+   "key": "screen-C-027-2",
+   "candidate_id": "C-027",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-002"
+  },
+  {
+   "receipt_id": "RC-003",
+   "key": "screen-C-042-3",
+   "candidate_id": "C-042",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-003"
+  },
+  {
+   "receipt_id": "RC-004",
+   "key": "screen-C-009-4",
+   "candidate_id": "C-009",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-004"
+  },
+  {
+   "receipt_id": "RC-005",
+   "key": "screen-C-039-5",
+   "candidate_id": "C-039",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-005"
+  },
+  {
+   "receipt_id": "RC-006",
+   "key": "screen-C-058-6",
+   "candidate_id": "C-058",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-006"
+  },
+  {
+   "receipt_id": "RC-007",
+   "key": "screen-C-005-7",
+   "candidate_id": "C-005",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-007"
+  },
+  {
+   "receipt_id": "RC-008",
+   "key": "screen-C-056-8",
+   "candidate_id": "C-056",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-008"
+  },
+  {
+   "receipt_id": "RC-009",
+   "key": "screen-C-052-9",
+   "candidate_id": "C-052",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-009"
+  },
+  {
+   "receipt_id": "RC-010",
+   "key": "screen-C-050-10",
+   "candidate_id": "C-050",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-010"
+  },
+  {
+   "receipt_id": "RC-011",
+   "key": "screen-C-036-11",
+   "candidate_id": "C-036",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-011"
+  },
+  {
+   "receipt_id": "RC-012",
+   "key": "screen-C-064-12",
+   "candidate_id": "C-064",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-012"
+  },
+  {
+   "receipt_id": "RC-013",
+   "key": "screen-C-043-13",
+   "candidate_id": "C-043",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-013"
+  },
+  {
+   "receipt_id": "RC-014",
+   "key": "screen-C-011-14",
+   "candidate_id": "C-011",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-014"
+  },
+  {
+   "receipt_id": "RC-015",
+   "key": "screen-C-038-15",
+   "candidate_id": "C-038",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-015"
+  },
+  {
+   "receipt_id": "RC-016",
+   "key": "confirm-C-056-16",
+   "candidate_id": "C-056",
+   "fidelity": "confirm",
+   "reserved": 6.0,
+   "charged": 6.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-016"
+  }
+ ],
+ "observations": [
+  {
+   "observation_id": "O-001",
+   "candidate_id": "C-037",
+   "fidelity": "screen",
+   "value": 0.1981,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-001"
+  },
+  {
+   "observation_id": "O-002",
+   "candidate_id": "C-027",
+   "fidelity": "screen",
+   "value": 0.3227,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-002"
+  },
+  {
+   "observation_id": "O-003",
+   "candidate_id": "C-042",
+   "fidelity": "screen",
+   "value": 0.5546,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-003"
+  },
+  {
+   "observation_id": "O-004",
+   "candidate_id": "C-009",
+   "fidelity": "screen",
+   "value": 0.2077,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-004"
+  },
+  {
+   "observation_id": "O-005",
+   "candidate_id": "C-039",
+   "fidelity": "screen",
+   "value": 0.1345,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-005"
+  },
+  {
+   "observation_id": "O-006",
+   "candidate_id": "C-058",
+   "fidelity": "screen",
+   "value": 0.4932,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-006"
+  },
+  {
+   "observation_id": "O-007",
+   "candidate_id": "C-005",
+   "fidelity": "screen",
+   "value": 0.1738,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-007"
+  },
+  {
+   "observation_id": "O-008",
+   "candidate_id": "C-056",
+   "fidelity": "screen",
+   "value": 0.7825,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-008"
+  },
+  {
+   "observation_id": "O-009",
+   "candidate_id": "C-052",
+   "fidelity": "screen",
+   "value": 0.3491,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-009"
+  },
+  {
+   "observation_id": "O-010",
+   "candidate_id": "C-050",
+   "fidelity": "screen",
+   "value": 0.733,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-010"
+  },
+  {
+   "observation_id": "O-011",
+   "candidate_id": "C-036",
+   "fidelity": "screen",
+   "value": 0.2389,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-011"
+  },
+  {
+   "observation_id": "O-012",
+   "candidate_id": "C-064",
+   "fidelity": "screen",
+   "value": 0.3245,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-012"
+  },
+  {
+   "observation_id": "O-013",
+   "candidate_id": "C-043",
+   "fidelity": "screen",
+   "value": 0.6257,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-013"
+  },
+  {
+   "observation_id": "O-014",
+   "candidate_id": "C-011",
+   "fidelity": "screen",
+   "value": 0.1073,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-014"
+  },
+  {
+   "observation_id": "O-015",
+   "candidate_id": "C-038",
+   "fidelity": "screen",
+   "value": 0.2507,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-015"
+  },
+  {
+   "observation_id": "O-016",
+   "candidate_id": "C-056",
+   "fidelity": "confirm",
+   "value": 0.7503,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-016"
+  }
+ ]
+}

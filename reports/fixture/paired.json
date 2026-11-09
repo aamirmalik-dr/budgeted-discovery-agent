@@ -1,0 +1,98 @@
+[
+ {
+  "family": "dev",
+  "arm": "random_feasible",
+  "reference": "tuned_acquisition",
+  "better": 0,
+  "tie": 0,
+  "worse": 4
+ },
+ {
+  "family": "dev",
+  "arm": "cost_aware",
+  "reference": "tuned_acquisition",
+  "better": 0,
+  "tie": 0,
+  "worse": 4
+ },
+ {
+  "family": "dev",
+  "arm": "single_call",
+  "reference": "tuned_acquisition",
+  "better": 0,
+  "tie": 3,
+  "worse": 1
+ },
+ {
+  "family": "dev",
+  "arm": "agent",
+  "reference": "tuned_acquisition",
+  "better": 0,
+  "tie": 2,
+  "worse": 2
+ },
+ {
+  "family": "dev",
+  "arm": "agent_default_selector",
+  "reference": "tuned_acquisition",
+  "better": 0,
+  "tie": 2,
+  "worse": 2
+ },
+ {
+  "family": "dev",
+  "arm": "agent_no_replicate",
+  "reference": "tuned_acquisition",
+  "better": 0,
+  "tie": 2,
+  "worse": 2
+ },
+ {
+  "family": "heldout",
+  "arm": "random_feasible",
+  "reference": "tuned_acquisition",
+  "better": 4,
+  "tie": 2,
+  "worse": 4
+ },
+ {
+  "family": "heldout",
+  "arm": "cost_aware",
+  "reference": "tuned_acquisition",
+  "better": 2,
+  "tie": 3,
+  "worse": 5
+ },
+ {
+  "family": "heldout",
+  "arm": "single_call",
+  "reference": "tuned_acquisition",
+  "better": 3,
+  "tie": 4,
+  "worse": 3
+ },
+ {
+  "family": "heldout",
+  "arm": "agent",
+  "reference": "tuned_acquisition",
+  "better": 2,
+  "tie": 3,
+  "worse": 5
+ },
+ {
+  "family": "heldout",
+  "arm": "agent_default_selector",
+  "reference": "tuned_acquisition",
+  "better": 2,
+  "tie": 3,
+  "worse": 5
+ },
+ {
+  "family": "heldout",
+  "arm": "agent_no_replicate",
+  "reference": "tuned_acquisition",
+  "better": 2,
+  "tie": 3,
+  "worse": 5
+ }
+]
