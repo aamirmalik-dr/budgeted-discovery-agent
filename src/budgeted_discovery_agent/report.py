@@ -160,7 +160,11 @@ def measured_table(ev: dict[str, Any]) -> str:
     fx = ev["modes"]["fixture"]
     if fx != "pending":
         idx = _paired_index(fx)
-        lines += [_row("no model", r, idx) for r in fx["metrics"] if r["arm"] in NON_LLM]
+        lines += [
+            _row("no model", r, idx)
+            for r in fx["metrics"]
+            if r["arm"] in NON_LLM and r["family"] == "dev"
+        ]
     lv = ev["modes"]["live"]
     if lv == "pending":
         lines.append("| live: pending |" + " |" * 15)
