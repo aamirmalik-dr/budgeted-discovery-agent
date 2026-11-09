@@ -171,3 +171,15 @@ def test_fixture_scripts_exist_for_every_campaign() -> None:
                 (ROOT / "tests/fixtures/scripts" / f"{family}_{kind}.json").read_text()
             )
             assert set(scripts) == ids
+
+
+def test_observation_lists_checked_allowed_candidates(cands, dev_specs) -> None:
+    from budgeted_discovery_agent.tools import FeasibilityArgs
+
+    spec = dev_specs["dev-boundary"]
+    cs, mhash = cands
+    camp = make_campaign(spec, cs, 0)
+    st = new_state(spec, mhash, "agent", 0, 10)
+    camp.feasibility(st, FeasibilityArgs(candidate_ids=["C-001", "C-044"]))
+    text = make_renderer(spec.brief())(st, [])
+    assert "Already checked and allowed: C-001, C-044" in text
