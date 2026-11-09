@@ -1,0 +1,50 @@
+[
+ {
+  "family": "heldout",
+  "arm": "random_feasible",
+  "reference": "tuned_acquisition",
+  "better": 4,
+  "tie": 5,
+  "worse": 11
+ },
+ {
+  "family": "heldout",
+  "arm": "cost_aware",
+  "reference": "tuned_acquisition",
+  "better": 2,
+  "tie": 5,
+  "worse": 13
+ },
+ {
+  "family": "heldout",
+  "arm": "single_call",
+  "reference": "tuned_acquisition",
+  "better": 4,
+  "tie": 10,
+  "worse": 6
+ },
+ {
+  "family": "heldout",
+  "arm": "agent",
+  "reference": "tuned_acquisition",
+  "better": 5,
+  "tie": 4,
+  "worse": 11
+ },
+ {
+  "family": "heldout",
+  "arm": "agent_default_selector",
+  "reference": "tuned_acquisition",
+  "better": 4,
+  "tie": 4,
+  "worse": 12
+ },
+ {
+  "family": "heldout",
+  "arm": "agent_no_replicate",
+  "reference": "tuned_acquisition",
+  "better": 6,
+  "tie": 2,
+  "worse": 12
+ }
+]

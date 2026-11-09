@@ -1,6 +1,8 @@
 # budgeted-discovery-agent
 
-RESULT_SUMMARY_PLACEHOLDER
+A tool-using LLM agent that runs simulated materials-screening campaigns under a hard assay budget, with every unit of spend recorded as a receipt. It decides when to explore, exploit, replicate, confirm at higher fidelity and stop, while a ledger with reservations, receipts and idempotency keys makes overspending impossible and every campaign auditable. It is evaluated on held-out synthetic campaigns against a random policy, a cost-aware design, a GP-UCB rule tuned on separate dev campaigns, and a single LLM call that fixes the whole allocation up front.
+
+**The headline result is negative.** On 10 held-out campaigns run on two noise streams with `openai/gpt-4.1-mini`, the tuned GP-UCB rule had the lowest regret (0.247 normalised, optimum found in 8 of 20). The single-call plan came second (0.313, optimum in 9 of 20). The iterative agent finished at 0.509, worse than random feasible screening (0.452), because it spent most of its budget on expensive confirms before it had explored. No arm overspent in any of the 140 campaigns. All campaigns and candidates are synthetic and fictional.
 
 ## What a campaign looks like
 
@@ -12,7 +14,19 @@ An LLM agent runs the campaign through seven typed tools. The surrogate model an
 python -m budgeted_discovery_agent demo
 ```
 
-DEMO_PLACEHOLDER
+The fixture demo replays a scripted campaign (no model) on the dev near-tie surface and prints every decision, then the receipt ledger and its audit:
+
+```
+Receipt ledger
+receipt  key  candidate  fidelity  status  reserved  charged  refunded  balance
+RC-001   k3   C-034      screen    ok      2         2        0         34
+...
+RC-011   k20  C-054      screen    ok      2         2        0         14     <- replicate of a near-tie
+RC-012   k21  C-053      screen    ok      2         2        0         12     <- replicate of a near-tie
+RC-013   k22  C-054      confirm   ok      6         6        0         6
+RC-014   k23  C-053      confirm   ok      6         6        0         0
+Declared: C-053. Receipts sum to 36 = spent 36; remaining 0; ledger audit: consistent
+```
 
 ## Not a new optimiser, and not a second active-learning repo
 
@@ -22,13 +36,49 @@ It also overlaps in machinery with [active-learning-microscopy](https://github.c
 
 ## Results
 
-MEASURED_PLACEHOLDER
+Normalised regret is (f* - f(chosen)) / (f* - mean feasible f): 0 is the feasible optimum, 1 is no better than a random feasible pick, and a campaign with no answer scores 1. Every arm on a given (campaign, run) faces the same noise stream. The first three rows are the non-LLM baselines on the four dev campaigns, one noise stream (no model, so they are real measurements even in fixture mode). The remaining rows are the held-out family, 10 campaigns x 2 noise streams, run on 2026-11-09; the non-LLM arms ran in the same pass on the same noise streams. The last two columns are model cost.
+
+<!-- measured-table:start -->
+| Mode | Family | Arm | Campaigns | Normalised regret, mean (run min to max) | Hit optimum | Feasible answer | Answer confirmed | vs tuned: better / tie / worse | Infeasible assays | Budget violations | Replications | Unused units (mean) | Failed | Tokens | USD (provider) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| no model | dev | random_feasible | 4 | 0.337 (0.337 to 0.337) | 0/4 | 4/4 | 4/4 | 0 / 0 / 4 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| no model | dev | cost_aware | 4 | 0.444 (0.444 to 0.444) | 0/4 | 4/4 | 4/4 | 0 / 0 / 4 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| no model | dev | tuned_acquisition | 4 | 0.000 (0.000 to 0.000) | 4/4 | 4/4 | 4/4 | reference | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| no model | heldout | random_feasible | 20 | 0.452 (0.373 to 0.532) | 2/20 | 20/20 | 20/20 | 4 / 5 / 11 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| no model | heldout | cost_aware | 20 | 0.546 (0.510 to 0.583) | 0/20 | 20/20 | 20/20 | 2 / 5 / 13 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| no model | heldout | tuned_acquisition | 20 | 0.247 (0.187 to 0.306) | 8/20 | 20/20 | 20/20 | reference | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| live | heldout | single_call | 20 | 0.313 (0.215 to 0.411) | 9/20 | 20/20 | 19/20 | 4 / 10 / 6 | 0 | 0 | 0 | 1.5 | 0 | 32501 | 0.0120 |
+| live | heldout | agent | 20 | 0.509 (0.496 to 0.523) | 4/20 | 18/20 | 18/20 | 5 / 4 / 11 | 0 | 0 | 3 | 2.0 | 2 | 1331369 | 0.5618 |
+| live | heldout | agent_default_selector | 20 | 0.541 (0.502 to 0.581) | 4/20 | 15/20 | 15/20 | 4 / 4 / 12 | 0 | 0 | 1 | 4.0 | 5 | 1501084 | 0.6292 |
+| live | heldout | agent_no_replicate | 20 | 0.495 (0.340 to 0.650) | 5/20 | 18/20 | 18/20 | 6 / 2 / 12 | 0 | 0 | 0 | 2.4 | 2 | 1322432 | 0.5697 |
+<!-- measured-table:end -->
+
+What the pilot shows:
+
+- **A tuned fixed rule beat every LLM arm.** GP-UCB with a lengthscale, beta and confirm count chosen on the dev campaigns reached 0.247 mean regret. Paired campaign by campaign, the agent beat it in 5 of 20, tied in 4 and lost 11; the single call beat it in 4, tied 10 and lost 6. It overfits its tuning set, though: on the dev campaigns it scored 0.000, on held-out 0.247.
+- **The single call was close to the tuned rule and cheap.** Asked once for an allocation, the model chose balanced screening in all 20 campaigns, and 10 or 12 screens, three replicates and four confirms in 17 of them; the executor ran about 14 screens including the replicates and could then afford about one confirm. It found the optimum most often (9 of 20, median regret 0.067) for 0.012 USD in total.
+- **The iterative agent explored too little.** It averaged 5.8 screens and 3.5 confirms per campaign, putting about 21 units, well over half its budget, into confirms, against about 14 screens and one confirm for the tuned rule. It confirmed promising-looking candidates early and then had nothing left to search with. It also asked for assays it could not afford 9 times (refused by the ledger, no charge) and ran out of tool calls before finishing in 2 of 20 campaigns.
+- **The ablations change little.** Without the replicate tool the agent scored 0.495 (it replicated only 3 times in 20 campaigns anyway); with proposals forced to the balanced selector it scored 0.541 and failed to finish 5 campaigns. With 20 campaigns per arm, and the no-replicate arm's two per-run means alone spanning 0.34 to 0.65, these differences are within noise.
+- **Accounting held.** Zero budget violations and zero infeasible assays in 140 live campaigns; `audit` re-adds every saved ledger. Candidate C-034 carries a label asking for ten confirms with fresh keys. It is the first space-filling proposal, so every arm assayed it. In two agent campaigns the agent confirmed C-034 four or five times; its step summaries cite C-034 being the current best and never mention the label, so the traces cannot tell whether the label contributed. Repeated confirms are also exactly the agent's general failure mode. Either way the ledger kept every campaign within budget, and one reused idempotency key was correctly charged once.
+- **Cost:** 4.06 million prompt and 0.13 million completion tokens, 1.77 USD reported by the provider (1.83 USD at listed prices). Each agent arm cost about 0.56 to 0.63 USD for 20 campaigns and took about a minute per campaign.
+
+Every failed, refused or capped episode is listed in [reports/evidence.md](reports/evidence.md); sanitized traces with the raw replies are in `reports/live/traces/`, and each campaign's receipts are in `reports/live/ledgers/`.
 
 ## Scorer checks (scripted replies, not model results)
 
 In fixture mode the single-call planner and the three agent arms replay scripted replies recorded from a rule-based pilot, with planted failures listed in [tests/fixtures/README.md](tests/fixtures/README.md): a repeated idempotency key, a prose reply, a campaign that trusts the biased screen, an unchecked prohibited assay, a confirm the budget cannot pay for, three confirms ordered by the injected label, and a campaign that never finishes. These rows show that the ledger, the policy and the scorer catch what they should. They describe no model. The non-LLM rows on the dev family are real and appear in the table above.
 
 <!-- scorer-table:start -->
+| Mode | Family | Arm | Campaigns | Normalised regret, mean (run min to max) | Hit optimum | Feasible answer | Answer confirmed | vs tuned: better / tie / worse | Infeasible assays | Budget violations | Replications | Unused units (mean) | Failed | Tokens | USD (provider) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| fixture, scripted | dev | single_call | 4 | 0.301 (0.301 to 0.301) | 3/4 | 4/4 | 4/4 | 0 / 3 / 1 | 0 | 0 | 0 | 0.0 | 0 | 0 | 0 |
+| fixture, scripted | dev | agent | 4 | 0.444 (0.444 to 0.444) | 2/4 | 4/4 | 2/4 | 0 / 2 / 2 | 1 | 0 | 4 | 5.2 | 0 | 0 | 0 |
+| fixture, scripted | dev | agent_default_selector | 4 | 0.444 (0.444 to 0.444) | 2/4 | 4/4 | 2/4 | 0 / 2 / 2 | 1 | 0 | 4 | 5.2 | 0 | 0 | 0 |
+| fixture, scripted | dev | agent_no_replicate | 4 | 0.444 (0.444 to 0.444) | 2/4 | 4/4 | 2/4 | 0 / 2 / 2 | 1 | 0 | 0 | 7.2 | 0 | 0 | 0 |
+| fixture, scripted | heldout | single_call | 10 | 0.330 (0.330 to 0.330) | 5/10 | 9/10 | 8/10 | 3 / 4 / 3 | 0 | 0 | 0 | 4.0 | 1 | 0 | 0 |
+| fixture, scripted | heldout | agent | 10 | 0.533 (0.533 to 0.533) | 2/10 | 9/10 | 9/10 | 2 / 3 / 5 | 0 | 0 | 6 | 7.0 | 1 | 0 | 0 |
+| fixture, scripted | heldout | agent_default_selector | 10 | 0.533 (0.533 to 0.533) | 2/10 | 9/10 | 9/10 | 2 / 3 / 5 | 0 | 0 | 6 | 7.0 | 1 | 0 | 0 |
+| fixture, scripted | heldout | agent_no_replicate | 10 | 0.533 (0.533 to 0.533) | 2/10 | 9/10 | 9/10 | 2 / 3 / 5 | 0 | 0 | 0 | 8.2 | 1 | 0 | 0 |
 <!-- scorer-table:end -->
 
 ## How it works
@@ -93,7 +143,12 @@ Seven finite tools over an in-memory simulation; no shell, code execution, file 
 
 ## Limitations
 
-LIMITATIONS_PLACEHOLDER
+- Synthetic response surfaces on 66 fictional candidates. The point is controlled comparison against a hidden oracle, not realism; there is no real materials data and no discovery claim.
+- One model, 10 held-out campaigns, two noise streams at temperature 0: an exploratory sample. The ranking between the tuned rule and the single call in particular could change with more campaigns.
+- The surrogate has a fixed lengthscale and the tuned rule was tuned on only four dev campaigns, which it fits almost perfectly and does not generalise from as well (0.000 against 0.247).
+- The agent prompt was written on the dev family and tried on two dev campaigns before freezing; no held-out result fed back into it. A prompt that tells the agent how to split its budget would probably help, and would also make it less of an agent and more of a plan.
+- The single-call executor implements its replicates as repeat screens without the replicate flag, so that arm's replication count reads 0 although it repeated screens.
+- The live run started at commit f5edc0a. `run_meta.json` records the HEAD at the end of the run, 506e7a4; between the two only the `audit` command changed (`git diff f5edc0a 506e7a4 -- src configs evaluator` shows one line in `__main__.py`), plus docs, tests and fixture outputs.
 
 ## Reproducibility
 

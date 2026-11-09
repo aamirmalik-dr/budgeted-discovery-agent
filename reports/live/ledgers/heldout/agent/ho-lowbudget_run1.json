@@ -1,0 +1,112 @@
+{
+ "campaign_id": "ho-lowbudget",
+ "arm": "agent",
+ "run": 1,
+ "budget_units": 22.0,
+ "spent_units": 18.0,
+ "chosen": "C-034",
+ "receipts": [
+  {
+   "receipt_id": "RC-001",
+   "key": "assay1-C034-screen",
+   "candidate_id": "C-034",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-001"
+  },
+  {
+   "receipt_id": "RC-002",
+   "key": "confirm-C034-001",
+   "candidate_id": "C-034",
+   "fidelity": "confirm",
+   "reserved": 6.0,
+   "charged": 6.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-002"
+  },
+  {
+   "receipt_id": "RC-003",
+   "key": "confirm-C066-001",
+   "candidate_id": "C-066",
+   "fidelity": "confirm",
+   "reserved": 6.0,
+   "charged": 6.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-003"
+  },
+  {
+   "receipt_id": "RC-004",
+   "key": "assay-C-038-screen-001",
+   "candidate_id": "C-038",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-004"
+  },
+  {
+   "receipt_id": "RC-005",
+   "key": "assay-C-003-screen-001",
+   "candidate_id": "C-003",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-005"
+  }
+ ],
+ "observations": [
+  {
+   "observation_id": "O-001",
+   "candidate_id": "C-034",
+   "fidelity": "screen",
+   "value": 0.1327,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-001"
+  },
+  {
+   "observation_id": "O-002",
+   "candidate_id": "C-034",
+   "fidelity": "confirm",
+   "value": 0.1477,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-002"
+  },
+  {
+   "observation_id": "O-003",
+   "candidate_id": "C-066",
+   "fidelity": "confirm",
+   "value": 0.1294,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-003"
+  },
+  {
+   "observation_id": "O-004",
+   "candidate_id": "C-038",
+   "fidelity": "screen",
+   "value": 0.0686,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-004"
+  },
+  {
+   "observation_id": "O-005",
+   "candidate_id": "C-003",
+   "fidelity": "screen",
+   "value": 0.4448,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-005"
+  }
+ ]
+}

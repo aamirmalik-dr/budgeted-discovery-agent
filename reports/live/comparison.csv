@@ -1,0 +1,8 @@
+family,arm,mode,episodes,runs,regret_mean,regret_median,regret_run_min,regret_run_max,hit_k,hit_n,chosen_feasible_k,chosen_feasible_n,confirmed_choice_k,confirmed_choice_n,infeasible_attempts_total,refused_over_budget_total,budget_violation_total,replications_total,confirms_total,screens_total,failed_total,tool_calls_total,unused_units_mean,model_calls_total,malformed_actions_total,reprompts_total,tokens_total,reported_cost_usd_total,latency_s_mean
+heldout,random_feasible,live,20,2,0.452,0.328,0.373,0.532,2,20,20,20,20,20,0,0,0,0,20,286,0,0,0.0,0,0,0,,,
+heldout,cost_aware,live,20,2,0.546,0.422,0.51,0.583,0,20,20,20,20,20,0,0,0,0,40,226,0,0,0.0,0,0,0,,,
+heldout,tuned_acquisition,live,20,2,0.247,0.174,0.187,0.306,8,20,20,20,20,20,0,0,0,0,20,286,0,0,0.0,0,0,0,,,
+heldout,single_call,live,20,2,0.313,0.067,0.215,0.411,9,20,20,20,19,20,0,0,0,0,19,274,0,0,1.5,20,0,0,32501,0.011968,0.0
+heldout,agent,live,20,2,0.509,0.402,0.496,0.523,4,20,18,20,18,20,0,9,0,3,70,116,2,585,2.0,585,0,0,1331369,0.561797,54.39
+heldout,agent_default_selector,live,20,2,0.541,0.512,0.502,0.581,4,20,15,20,15,20,0,7,0,1,48,162,5,666,4.0,666,0,0,1501084,0.629184,63.19
+heldout,agent_no_replicate,live,20,2,0.495,0.407,0.34,0.65,5,20,18,20,18,20,0,7,0,0,67,121,2,628,2.4,628,0,0,1322432,0.569721,59.29
