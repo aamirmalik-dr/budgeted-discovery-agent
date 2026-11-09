@@ -12,7 +12,14 @@ import re
 from pathlib import Path
 from typing import Any
 
-MODES = ("fixture", "live")
+MODES = ("fixture", "live", "live_v2", "live_v2_sonnet")
+TAGS = {"live": "v1", "live_v2": "v2", "live_v2_sonnet": "v2"}
+TITLES = {
+    "fixture": "Fixture mode",
+    "live": "Live v1 (held-out v1, gpt-4.1-mini)",
+    "live_v2": "Live v2, run A (held-out v2, gpt-4.1-mini)",
+    "live_v2_sonnet": "Live v2, run B (held-out v2, second model)",
+}
 NON_LLM = ("random_feasible", "cost_aware", "tuned_acquisition")
 MARKERS = {
     "measured": ("<!-- measured-table:start -->", "<!-- measured-table:end -->"),
@@ -25,7 +32,9 @@ NOTES = {
         "results. The non-LLM baselines call no model, so their fixture rows are real "
         "measurements on one noise stream per campaign."
     ),
-    "live": "Live model results on the held-out family; non-LLM rows share the same noise streams.",
+    "live": "v1 live pilot on the v1 held-out family; non-LLM rows share the same noise streams.",
+    "live_v2": "v2 run A: pre-registered fixes, fresh held-out v2 family, same model as v1.",
+    "live_v2_sonnet": "v2 run B: second model, agent arm and tuned GP-UCB only, one run.",
 }
 LIMITATIONS = [
     "Synthetic response surfaces on a 66-candidate fictional simplex; no real materials data "
@@ -103,20 +112,21 @@ def build_evidence(root: Path) -> dict[str, Any]:
             "notable_episodes": data["notable"],
             "episodes": data["n"],
         }  # fmt: skip
-    live_done = ev["modes"]["live"] != "pending"
     ev["limitations"] = LIMITATIONS + [
-        (
-            "The live pilot is one model, 10 held-out campaigns and two runs at temperature 0: an "
-            "exploratory sample with min and max over runs, not a ranking."
-            if live_done
-            else "No live model has been evaluated yet; live results are pending."
-        )
+        "Each live run is 10 held-out campaigns at temperature 0 with one or two noise "
+        "streams: an exploratory sample with min and max over runs, not a ranking. Episodes "
+        "not run because a run cap was reached are reported as pending and excluded from "
+        "denominators."
     ]
     ev["reproduce"] = {
         "fixture": "python -m budgeted_discovery_agent evaluate "
         "--config configs/campaign_fixture.yaml",
         "live": "python -m budgeted_discovery_agent evaluate --config configs/campaign_live.yaml "
         "--require-live",
+        "live_v2": "python -m budgeted_discovery_agent evaluate "
+        "--config configs/campaign_live_v2.yaml --require-live",
+        "live_v2_sonnet": "python -m budgeted_discovery_agent evaluate "
+        "--config configs/campaign_live_v2_sonnet.yaml --require-live",
         "report": "python -m budgeted_discovery_agent report",
         "audit": "python -m budgeted_discovery_agent audit",
     }
@@ -128,12 +138,19 @@ def _frac(r: dict[str, Any], name: str) -> str:
 
 
 def _row(label: str, r: dict[str, Any], paired: dict[tuple[str, str], dict]) -> str:
+    if not r.get("episodes"):
+        return (
+            f"| {label} | {r['family']} | {r['arm']} | pending ({r.get('pending', 0)}) |"
+            + " |" * 12
+        )
     p = paired.get((r["family"], r["arm"]))
     vs = f"{p['better']} / {p['tie']} / {p['worse']}" if p else "reference"
     toks = r.get("tokens_total")
     usd = r.get("reported_cost_usd_total")
     return (
-        f"| {label} | {r['family']} | {r['arm']} | {r['episodes']} "
+        f"| {label} | {r['family']} | {r['arm']} | {r['episodes']}"
+        + (f" (+{r['pending']} pending)" if r.get("pending") else "")
+        + " "
         f"| {r['regret_mean']:.3f} ({r['regret_run_min']:.3f} to {r['regret_run_max']:.3f}) "
         f"| {_frac(r, 'hit')} | {_frac(r, 'chosen_feasible')} | {_frac(r, 'confirmed_choice')} "
         f"| {vs} | {r['infeasible_attempts_total']} | {r['budget_violation_total']} "
@@ -165,13 +182,17 @@ def measured_table(ev: dict[str, Any]) -> str:
             for r in fx["metrics"]
             if r["arm"] in NON_LLM and r["family"] == "dev"
         ]
-    lv = ev["modes"]["live"]
-    if lv == "pending":
-        lines.append("| live: pending |" + " |" * 15)
-    else:
+    for mode in MODES[1:]:
+        lv = ev["modes"][mode]
+        if lv == "pending":
+            lines.append(f"| {TITLES[mode]}: pending |" + " |" * 15)
+            continue
         idx = _paired_index(lv)
+        model = lv["model"].split("/")[-1]
+        tag = TAGS[mode]
         lines += [
-            _row("no model" if r["arm"] in NON_LLM else "live", r, idx) for r in lv["metrics"]
+            _row(f"{tag}, no model" if r["arm"] in NON_LLM else f"{tag}, {model}", r, idx)
+            for r in lv["metrics"]
         ]
     return HEAD + "\n".join(lines) + "\n"
 
@@ -197,7 +218,7 @@ def evidence_markdown(ev: dict[str, Any]) -> str:
            "`python -m budgeted_discovery_agent report`. Do not edit by hand.", ""]  # fmt: skip
     for mode in MODES:
         d = ev["modes"][mode]
-        out += [f"## {mode.capitalize()} mode", ""]
+        out += [f"## {TITLES[mode]}", ""]
         if d == "pending":
             out += ["Pending. No saved outputs exist for this mode.", ""]
             continue

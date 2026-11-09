@@ -65,7 +65,7 @@ class CampaignBrief(BaseModel):
     """Everything the agent is told about a campaign before it starts."""
 
     campaign_id: str
-    family: Literal["dev", "heldout"]
+    family: Literal["dev", "heldout", "heldout_v2"]
     budget_units: float
     cost: dict[str, float] = Field(description="assay units per fidelity")
     candidates: str = "66 candidates, ids C-001 to C-066"

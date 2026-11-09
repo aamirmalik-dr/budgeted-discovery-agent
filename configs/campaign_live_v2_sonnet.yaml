@@ -1,0 +1,23 @@
+# v2 run B, second model. Same fresh held-out v2 family, same prompts and caps,
+# only the agent arm and the strongest v1 baseline (tuned GP-UCB, no model), one
+# noise stream. Frozen 2026-11-09 before the run. Episodes not reached because of
+# the dollar cap are reported as pending.
+mode: live
+model: anthropic/claude-sonnet-4.6   # via OpenRouter
+families: [heldout_v2]
+arms: [tuned_acquisition, agent]
+runs: 1
+episode:
+  max_steps: 44
+  max_tool_calls: 36
+  max_tokens: 80000
+  max_wall_seconds: 600
+  recent_k: 4
+  max_completion_tokens: 400
+run_caps:
+  max_total_tokens: 2000000
+  max_usd: 2.20                   # checked before every episode at the prices below
+  usd_per_mtok_input: 3.00        # OpenRouter listed price, 2026-11-09
+  usd_per_mtok_output: 15.00
+output_dir: reports/live_v2_sonnet
+checkpoint_dir: runs/v2b

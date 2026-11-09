@@ -48,6 +48,8 @@ from .schemas import Candidate
 NON_LLM = ("random_feasible", "cost_aware", "tuned_acquisition")
 ALL_ARMS = (*NON_LLM, "single_call", *AGENT_ARMS)
 TIE = 0.01
+PENDING_STOP = "run_budget_exhausted"
+"""Episodes not run because a run cap was reached: reported as pending, not scored."""
 
 
 class RunCaps(BaseModel):
@@ -301,10 +303,20 @@ def run_evaluation(cfg: EvalConfig, cfg_sha: str, root: Path, require_live: bool
 def aggregate(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """One comparison row per (family, arm), with denominators and spread."""
     groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    pending: dict[tuple[str, str], int] = {}
     for r in rows:
-        groups.setdefault((r["family"], r["arm"]), []).append(r)
+        key = (r["family"], r["arm"])
+        if r.get("stop_reason") == PENDING_STOP:
+            pending[key] = pending.get(key, 0) + 1
+            groups.setdefault(key, [])
+            continue
+        groups.setdefault(key, []).append(r)
     out = []
     for (family, arm), rs in groups.items():
+        if not rs:
+            out.append({"family": family, "arm": arm, "episodes": 0,
+                        "pending": pending.get((family, arm), 0)})  # fmt: skip
+            continue
         reg = np.array([r["normalized_regret"] for r in rs])
         per_run: dict[int, list[float]] = {}
         for r in rs:
@@ -316,6 +328,7 @@ def aggregate(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "mode": rs[0]["mode"],
             "episodes": len(rs),
             "runs": len(per_run),
+            "pending": pending.get((family, arm), 0),
             "regret_mean": round(float(reg.mean()), 3),
             "regret_median": round(float(np.median(reg)), 3),
             "regret_run_min": round(min(run_means), 3),
@@ -368,7 +381,7 @@ def paired(rows: list[dict[str, Any]], reference: str = "tuned_acquisition") -> 
     out: dict[tuple[str, str], dict[str, int]] = {}
     for r in rows:
         key = (r["family"], r["campaign_id"], r["run"])
-        if r["arm"] == reference or key not in ref:
+        if r["arm"] == reference or key not in ref or r.get("stop_reason") == PENDING_STOP:
             continue
         d = r["normalized_regret"] - ref[key]
         c = out.setdefault((r["family"], r["arm"]), {"better": 0, "tie": 0, "worse": 0})
@@ -383,7 +396,8 @@ def write_outputs(out: Path, rows: list[dict], meta: dict) -> None:
             fh.write(json.dumps(r, sort_keys=True) + "\n")
     comparison = aggregate(rows)
     with (out / "comparison.csv").open("w", encoding="utf-8", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=list(comparison[0]), lineterminator="\n")
+        fields = list(dict.fromkeys(k for row in comparison for k in row))
+        w = csv.DictWriter(fh, fieldnames=fields, lineterminator="\n")
         w.writeheader()
         w.writerows(comparison)
     (out / "paired.json").write_text(
