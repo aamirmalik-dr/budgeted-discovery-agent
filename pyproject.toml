@@ -25,7 +25,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "black>=24", "ruff>=0.5"]
+dev = ["pytest>=8", "black>=24", "ruff>=0.5", "matplotlib>=3.8"]
 
 [project.scripts]
 budgeted-discovery-agent = "budgeted_discovery_agent.__main__:main"
