@@ -1,0 +1,212 @@
+{
+ "campaign_id": "h2-chain",
+ "arm": "agent",
+ "run": 0,
+ "budget_units": 36.0,
+ "spent_units": 24.0,
+ "chosen": null,
+ "receipts": [
+  {
+   "receipt_id": "RC-001",
+   "key": "m1",
+   "candidate_id": "C-034",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-001"
+  },
+  {
+   "receipt_id": "RC-002",
+   "key": "screen-C-011-001",
+   "candidate_id": "C-011",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-002"
+  },
+  {
+   "receipt_id": "RC-003",
+   "key": "m2",
+   "candidate_id": "C-032",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-003"
+  },
+  {
+   "receipt_id": "RC-004",
+   "key": "m1-c066-screen",
+   "candidate_id": "C-066",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-004"
+  },
+  {
+   "receipt_id": "RC-005",
+   "key": "m1-c001-screen",
+   "candidate_id": "C-001",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-005"
+  },
+  {
+   "receipt_id": "RC-006",
+   "key": "m1-c046-screen",
+   "candidate_id": "C-046",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-006"
+  },
+  {
+   "receipt_id": "RC-007",
+   "key": "m1-c052-screen",
+   "candidate_id": "C-052",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-007"
+  },
+  {
+   "receipt_id": "RC-008",
+   "key": "screen-C-005-001",
+   "candidate_id": "C-005",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-008"
+  },
+  {
+   "receipt_id": "RC-009",
+   "key": "confirm-C005-001",
+   "candidate_id": "C-005",
+   "fidelity": "confirm",
+   "reserved": 6.0,
+   "charged": 6.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-009"
+  },
+  {
+   "receipt_id": "RC-010",
+   "key": "screen-C045-001",
+   "candidate_id": "C-045",
+   "fidelity": "screen",
+   "reserved": 2.0,
+   "charged": 2.0,
+   "refunded": 0.0,
+   "status": "ok",
+   "observation_id": "O-010"
+  }
+ ],
+ "observations": [
+  {
+   "observation_id": "O-001",
+   "candidate_id": "C-034",
+   "fidelity": "screen",
+   "value": 0.142,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-001"
+  },
+  {
+   "observation_id": "O-002",
+   "candidate_id": "C-011",
+   "fidelity": "screen",
+   "value": 0.0294,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-002"
+  },
+  {
+   "observation_id": "O-003",
+   "candidate_id": "C-032",
+   "fidelity": "screen",
+   "value": 0.1626,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-003"
+  },
+  {
+   "observation_id": "O-004",
+   "candidate_id": "C-066",
+   "fidelity": "screen",
+   "value": 0.0945,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-004"
+  },
+  {
+   "observation_id": "O-005",
+   "candidate_id": "C-001",
+   "fidelity": "screen",
+   "value": 0.068,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-005"
+  },
+  {
+   "observation_id": "O-006",
+   "candidate_id": "C-046",
+   "fidelity": "screen",
+   "value": 0.1552,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-006"
+  },
+  {
+   "observation_id": "O-007",
+   "candidate_id": "C-052",
+   "fidelity": "screen",
+   "value": 0.1426,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-007"
+  },
+  {
+   "observation_id": "O-008",
+   "candidate_id": "C-005",
+   "fidelity": "screen",
+   "value": 0.373,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-008"
+  },
+  {
+   "observation_id": "O-009",
+   "candidate_id": "C-005",
+   "fidelity": "confirm",
+   "value": 0.4396,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-009"
+  },
+  {
+   "observation_id": "O-010",
+   "candidate_id": "C-045",
+   "fidelity": "screen",
+   "value": 0.1067,
+   "status": "ok",
+   "replicate_of": null,
+   "receipt_id": "RC-010"
+  }
+ ]
+}

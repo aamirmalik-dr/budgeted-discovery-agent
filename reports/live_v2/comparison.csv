@@ -1,0 +1,8 @@
+family,arm,mode,episodes,runs,pending,regret_mean,regret_median,regret_run_min,regret_run_max,hit_k,hit_n,chosen_feasible_k,chosen_feasible_n,confirmed_choice_k,confirmed_choice_n,infeasible_attempts_total,refused_over_budget_total,budget_violation_total,replications_total,confirms_total,screens_total,failed_total,tool_calls_total,unused_units_mean,model_calls_total,malformed_actions_total,reprompts_total,tokens_total,reported_cost_usd_total,latency_s_mean
+heldout_v2,random_feasible,live,20,2,0,0.424,0.423,0.406,0.441,1,20,20,20,20,20,0,0,0,0,20,302,0,0,0.0,0,0,0,,,
+heldout_v2,cost_aware,live,20,2,0,0.484,0.462,0.474,0.494,2,20,20,20,20,20,0,0,0,0,40,242,0,0,0.0,0,0,0,,,
+heldout_v2,tuned_acquisition,live,20,2,0,0.3,0.212,0.28,0.319,7,20,20,20,20,20,0,0,0,0,20,302,0,0,0.0,0,0,0,,,
+heldout_v2,single_call,live,20,2,0,0.237,0.117,0.144,0.33,8,20,20,20,18,20,0,0,0,60,20,294,0,0,0.8,20,0,0,33525,0.01202,0.0
+heldout_v2,agent,live,20,2,0,0.953,1.0,0.9,1.006,1,20,2,20,2,20,0,1,0,0,14,194,18,651,12.6,651,0,0,1609932,0.680737,53.44
+heldout_v2,agent_default_selector,live,19,2,1,0.912,1.0,0.834,1.0,1,19,3,19,3,19,0,0,0,1,15,179,16,604,13.16,604,0,0,1508699,0.613397,50.07
+heldout_v2,agent_no_replicate,live,19,2,1,0.878,1.0,0.869,0.889,1,19,3,19,3,19,0,1,0,0,10,182,16,651,14.42,651,0,0,1521023,0.652769,55.52

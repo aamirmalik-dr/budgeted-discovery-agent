@@ -1,0 +1,10 @@
+{
+ "campaign_id": "h2-tight-tie",
+ "arm": "agent_no_replicate",
+ "run": 1,
+ "budget_units": 26.0,
+ "spent_units": 0.0,
+ "chosen": null,
+ "receipts": [],
+ "observations": []
+}

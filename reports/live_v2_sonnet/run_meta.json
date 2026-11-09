@@ -1,0 +1,69 @@
+{
+ "adapter_retries": 45,
+ "agentcore_version": "0.1.2",
+ "config": {
+  "adapter_backoff_s": 5.0,
+  "adapter_max_retries": 6,
+  "arms": [
+   "tuned_acquisition",
+   "agent"
+  ],
+  "candidates": "tests/fixtures/candidates.json",
+  "checkpoint_dir": "runs/v2b",
+  "episode": {
+   "max_completion_tokens": 400,
+   "max_steps": 44,
+   "max_tokens": 80000,
+   "max_tool_calls": 36,
+   "max_wall_seconds": 600.0,
+   "recent_k": 4,
+   "record_timing": true
+  },
+  "families": [
+   "heldout_v2"
+  ],
+  "fixture_scripts": "tests/fixtures/scripts",
+  "mode": "live",
+  "model": "anthropic/claude-sonnet-4.6",
+  "output_dir": "reports/live_v2_sonnet",
+  "run_caps": {
+   "max_total_tokens": 2000000,
+   "max_usd": 1.85,
+   "usd_per_mtok_input": 3.0,
+   "usd_per_mtok_output": 15.0
+  },
+  "runs": 1,
+  "tuned_params": "configs/tuned_acquisition.yaml"
+ },
+ "config_sha256": "a448070522acd6c66aa43e29bc251b482ca072f2ebeb40dc70b5d5256a30c338",
+ "finished_at": "2026-11-09T14:40:27+09:00",
+ "git_commit": "3b3dd071e4de154f2a56032fac19e58d3ccf06a9",
+ "git_dirty": false,
+ "hardware": {
+  "machine": "AMD64",
+  "platform": "Windows-10-10.0.26300-SP0",
+  "python": "3.11.9"
+ },
+ "input_hashes": {
+  "candidates": "7b332d9ee44be0707ba9e60ee5533c302ae6c348020e0556415e115129d65e7b",
+  "heldout_v2/campaigns": "e470dff112add875220d61a3720e095081a9f02e4e3f55a24297aeb9feaf8056",
+  "tuned_params": "f8a623418795df2c55aa066bff4699d89ede8ef166ee38faeea5cc9fd6da70eb"
+ },
+ "mode": "live",
+ "model": "anthropic/claude-sonnet-4.6",
+ "package_version": "0.1.0",
+ "prompt_sha256": "ea4d52276b64ffc18ece30e32f7b613858a0ac2a7b99c212a99db30fd29bdde6",
+ "prompt_version": "campaign-prompts-v2",
+ "started_at": "2026-11-09T14:23:41+09:00",
+ "tokens": {
+  "completion": 16467,
+  "prompt": 572288
+ },
+ "tuned_params": {
+  "beta": 0.5,
+  "lengthscale": 0.15,
+  "n_confirm": 1
+ },
+ "usd": 1.963869,
+ "usd_reported_by_provider": 1.963869
+}

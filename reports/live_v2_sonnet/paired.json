@@ -1,0 +1,10 @@
+[
+ {
+  "family": "heldout_v2",
+  "arm": "agent",
+  "reference": "tuned_acquisition",
+  "better": 2,
+  "tie": 1,
+  "worse": 5
+ }
+]
