@@ -4,6 +4,14 @@ A tool-using LLM agent that runs simulated materials-screening campaigns under a
 
 **The headline result is negative for the iterative agent.** In the first round (v1: 10 held-out campaigns, two noise streams, `openai/gpt-4.1-mini`) the tuned GP-UCB rule had the lowest regret (0.247 normalised), the single-call plan came second (0.313) and the iterative agent finished at 0.509, worse than random feasible screening (0.452), because it spent most of its budget on confirms before exploring. A second, pre-registered round (v2) on a fresh held-out family fixed a measurement bug and added one generic screening-first rule. With the same model, the single call then beat the tuned rule (0.237 against 0.300), but the iterative agent collapsed to 0.953: it screened more, then rarely stopped, and 18 of 20 episodes ran into the 80,000-token episode cap. With `anthropic/claude-sonnet-4.6` as the agent (one noise stream, 8 of 10 campaigns before the dollar cap) it reached 0.343, against 0.258 for the tuned rule on the same 8 campaigns. No arm overspent in any campaign. All campaigns and candidates are synthetic and fictional.
 
+## Results at a glance
+
+![Mean normalised regret by arm and round: in v1 the tuned GP-UCB rule scored 0.247, the single call 0.313 and the iterative agent 0.509; in v2 the single call scored 0.237, the tuned rule 0.300 and the agent 0.953; with the second model the agent scored 0.343 on 8 campaigns against 0.319 for the tuned rule on all 10](docs/figures/regret_by_arm.png)
+
+In both pre-registered rounds a GP-UCB rule tuned on separate dev campaigns, or one planning call by the same model, beat the iterative gpt-4.1-mini agent: mean regret 0.247 and 0.313 against 0.509 in v1, and 0.300 and 0.237 against 0.953 in v2. In v2 the agent screened more, as the prompt fix intended, but 18 of 20 episodes hit the 80,000-token cap before it declared an answer; claude-sonnet-4.6 as the agent reached 0.343 on 8 campaigns, still behind the tuned rule on the same campaigns (0.258).
+
+*Live, held-out families. v1 and v2: gpt-4.1-mini, 10 campaigns x 2 noise streams; second model: claude-sonnet-4.6, 10 campaigns x 1 stream, 2 agent episodes pending. Bars are means, points are individual campaigns, and the numbers on top are optimum hits with denominators.*
+
 ## What a campaign looks like
 
 Each campaign is a hidden synthetic response surface over 66 fictional compositions on a three-component simplex (ids C-001 to C-066). The campaign has 36 assay units (22 in one held-out campaign), a screen assay at 2 units that is noisier and can be systematically biased, a confirm assay at 6 units that is accurate, and one stability rule that prohibits part of the simplex. Assaying a prohibited candidate fails and still charges half the cost. The goal is to declare the feasible candidate with the highest confirm-fidelity value.
@@ -82,6 +90,18 @@ What v2 showed:
 - **Accounting held again:** zero budget violations and zero infeasible assays in every v2 campaign.
 - **Cost:** run A 1.96 USD reported by the provider (2.02 at listed prices; the cap is checked before each episode, so the last one ran past 2.00 and the final two LLM episodes are pending); run B 1.96 USD plus 0.31 USD for the aborted attempt.
 
+![Median regret of the best-looking candidate as the budget is spent: at full budget the incumbent of the tuned rule reaches 0.174 (v1) and 0.113 (v2), the single call 0.067 and 0.117, and the gpt-4.1-mini agent 0.284 and 0.343, while the second-model agent reaches 0.104](docs/figures/regret_vs_spend.png)
+
+*Live, held-out families, 20 campaign runs per arm and panel (8 for the second model). The curve is the median regret of the incumbent, the candidate with the highest mean observed value so far, against the fraction of the budget spent; before the first observation it counts as 1, and an arm that stopped early keeps its last incumbent. True values come from the frozen campaign definitions, read after the fact. In v2 the gpt-4.1-mini agent had usually found a fair candidate (median 0.343) but its declared regret is 0.953, because most episodes ended at the token cap before it declared one.*
+
+![How LLM episodes ended: the single call always finished; the gpt-4.1-mini agent finished 18 of 20 in v1 but only 2 of 20 in v2, where 18 hit the token cap; the second-model agent finished 6 of 10, with 2 at the token cap and 2 pending](docs/figures/stop_reasons.png)
+
+*Live, held-out families, LLM arms only (the non-LLM arms always finish). v1 and v2: gpt-4.1-mini, 20 episodes per arm; second model: claude-sonnet-4.6, 10 episodes, hatched. Pending episodes were not run because a dollar cap was reached; the aborted HTTP 429 attempt is not shown.*
+
+![Example v2 campaign h2-negbias, run 0: the gpt-4.1-mini agent spent 31 steps, nine of them assays, reached a screen of 0.67 and a confirm of 0.62 against a true best of 0.80, and stopped at the token cap with 14 of 36 units unspent and no declared answer](docs/figures/example_campaign.png)
+
+*Live, v2 run A, one agent episode. Chosen by a rule computed in `scripts/make_figures.py`: the lower median (5th of 10) of the run-0 agent campaigns sorted by regret, then by campaign order. Top: every assay result by kind, with ticks for proposal, feasibility and summary calls; bottom: units spent per step.*
+
 Every failed, refused or capped episode is listed in [reports/evidence.md](reports/evidence.md); sanitized traces with the raw replies are in `reports/live*/traces/`, and each campaign's receipts are in `reports/live*/ledgers/`.
 
 ## Scorer checks (scripted replies, not model results)
@@ -103,6 +123,24 @@ In fixture mode the single-call planner and the three agent arms replay scripted
 
 ## How it works
 
+```mermaid
+flowchart LR
+    subgraph episode["Agent episode: agent arms; baselines and the single-call executor use the same tools without the loop"]
+        O["Observation<br/>brief, ledger balance, observations,<br/>known feasibility, last four results"] --> M["Model adapter<br/>fixture or live"]
+        M --> P["Reply parser<br/>one JSON action"]
+        P --> G{"agentcore policy<br/>allowlist, argument schemas,<br/>step, tool-call and token caps"}
+        G --> T["Seven tools"]
+        T --> S["GP surrogate<br/>fitted on observed data only"]
+        T --> L["Cost ledger<br/>reserve, commit, refund,<br/>receipts, fsynced journal"]
+        T --> SIM["Simulator<br/>noisy assays, feasibility verdicts"]
+        T -->|"result as untrusted data"| O
+        T --> C["Checkpointed state and trace"]
+    end
+    H[("evaluator/<br/>hidden surfaces, bias, noise")] -.->|"read inside the simulator only"| SIM
+    C -->|"declared candidate and receipts"| E["Scorer<br/>oracle read after finish,<br/>normalised regret"]
+    H -.-> E
+```
+
 ```
 src/budgeted_discovery_agent/
   agentcore/        vendored from evidence-ledger-agent 0.1.2, unchanged: loop, policy, budgets,
@@ -120,12 +158,12 @@ src/budgeted_discovery_agent/
   report.py         evidence.json, evidence.md and the README tables
 evaluator/          hidden campaign definitions (read by the simulator and the scorer only)
 configs/            fixture and live configs, tuned acquisition parameters (frozen)
-scripts/            campaign builder, baseline tuning on dev, fixture-script generator
+scripts/            campaign builders, baseline tuning on dev, fixture scripts, figures
 docs/               design, evaluation contract, threat model, distinction, agentcore changes
 reports/            saved outputs: ledgers, traces, task results, evidence files
 ```
 
-Each step the model sees the campaign brief, its ledger balance, its observations so far, the prohibited candidates it knows about and the last four tool results inside `trust="untrusted-data"` blocks. It replies with one JSON object naming a tool and its arguments. [docs/design.md](docs/design.md) covers the ledger semantics and checkpointing in detail, and [docs/evaluation.md](docs/evaluation.md) is the evaluation contract, written before any run.
+Each step the model sees the campaign brief, its ledger balance, its observations so far, the candidates it knows to be prohibited (and, since v2, those already checked and allowed) and the last four tool results inside `trust="untrusted-data"` blocks. It replies with one JSON object naming a tool and its arguments. [docs/design.md](docs/design.md) covers the ledger semantics and checkpointing in detail, and [docs/evaluation.md](docs/evaluation.md) is the evaluation contract, written before any run.
 
 ## Quickstart
 
@@ -181,6 +219,7 @@ Seven finite tools over an in-memory simulation; no shell, code execution, file 
 - Noise uses common random numbers, so every arm in a (campaign, run) pair faces the same noise, and fixture runs are deterministic.
 - `scripts/tune_acquisition.py` reproduces the tuned baseline from the dev family alone (runs 100 to 104, disjoint from evaluation runs).
 - `reports/evidence.json` and `reports/evidence.md` are generated from saved outputs only.
+- Figures: `python scripts/make_figures.py` redraws every PNG in `docs/figures/` from the saved task results, receipt ledgers and one saved trace, plus the frozen campaign definitions for true values. It calls no model and gives identical files on every run (matplotlib comes with the `dev` extras). Each PNG is re-encoded with a 256-colour palette of its own most frequent colours to keep the repository small.
 
 ## Author
 
