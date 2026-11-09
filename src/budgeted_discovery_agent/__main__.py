@@ -123,7 +123,7 @@ def run_demo(
 def audit_ledgers(directory: Path) -> tuple[int, list[str]]:
     """Re-add every saved ledger: receipts must sum to spent, within budget."""
     problems: list[str] = []
-    files = sorted(directory.rglob("*.json"))
+    files = sorted(f for f in directory.rglob("*.json") if "ledgers" in f.parts)
     for f in files:
         d = json.loads(f.read_text(encoding="utf-8"))
         total = round(sum(r["charged"] for r in d["receipts"]), 9)

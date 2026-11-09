@@ -126,3 +126,20 @@ def test_require_live_fails_clearly(monkeypatch: pytest.MonkeyPatch, capsys) -> 
     assert main(["evaluate", "--config", "configs/campaign_fixture.yaml", "--require-live"]) == 2
     assert main(["evaluate", "--config", "configs/campaign_live.yaml", "--require-live"]) == 2
     assert "fixture fallback is disabled" in " ".join(capsys.readouterr().out.split())
+
+
+def test_audit_reads_only_ledgers_and_catches_tampering(tmp_path) -> None:
+    from budgeted_discovery_agent.__main__ import audit_ledgers
+
+    led = tmp_path / "fixture" / "ledgers" / "dev" / "agent"
+    led.mkdir(parents=True)
+    (tmp_path / "fixture" / "paired.json").write_text("[]")
+    rec = {"charged": 2.0, "key": "k1"}
+    doc = {"budget_units": 36, "spent_units": 2.0, "receipts": [rec]}
+    import json
+
+    (led / "a.json").write_text(json.dumps(doc))
+    assert audit_ledgers(tmp_path) == (1, [])
+    (led / "b.json").write_text(json.dumps({**doc, "spent_units": 4.0, "receipts": [rec, rec]}))
+    n, problems = audit_ledgers(tmp_path)
+    assert n == 2 and any("duplicate" in p for p in problems)
