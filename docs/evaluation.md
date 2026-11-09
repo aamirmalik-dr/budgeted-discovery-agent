@@ -50,3 +50,13 @@ where f is the hidden noise-free confirm-fidelity value, f* is the best feasible
 | agent_no_replicate | LLM, iterative | as agent, without the replicate tool |
 
 All arms use the same tools, ledger and budget. The agent is not required to win.
+
+## v2 round (pre-registered 2026-11-09)
+
+After the v1 pilot, three fixes were pre-registered, each tied to v1 evidence, and committed before a new held-out family was written:
+
+1. The single-call executor now runs its repeat screens through `replicate`, so they are flagged and counted (all 20 v1 plans asked for replicates; the column read 0).
+2. One generic rule was added to the agent prompt (`campaign-prompts-v2`): screening breadth first, confirms only for the final one or two contenders (the v1 agent averaged 5.8 screens and 3.5 confirms per campaign).
+3. The per-step observation lists candidates already checked and allowed, next to the known prohibited ones (48 percent of v1 feasibility checks were repeats, and 8 of 60 agent-arm campaigns hit the tool-call cap).
+
+Metrics, costs, caps, tools, the surrogate and the tuned GP-UCB parameters are unchanged; the baseline was not re-tuned. `heldout_v2` (10 campaigns, `scripts/build_campaigns_v2.py`) uses surface and constraint shapes absent from dev and v1 (two prohibited disks, a wedge, a ring). Run A repeats all seven arms with gpt-4.1-mini on two noise streams; run B runs the agent with claude-sonnet-4.6 against the tuned GP-UCB rule on one noise stream. An LLM episode not run because a dollar cap was reached is reported as pending and excluded from denominators.
