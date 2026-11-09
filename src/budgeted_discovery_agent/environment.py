@@ -46,6 +46,10 @@ class Constraint(BaseModel):
     upper: float | None = None
     center: tuple[float, float, float] | None = None
     radius: float | None = None
+    centers: list[tuple[float, float, float]] | None = None
+    weights2: tuple[float, float, float] | None = None
+    threshold2: float | None = None
+    outer: float | None = None
 
 
 class CampaignSpec(BaseModel):
@@ -113,6 +117,17 @@ class Simulator:
             bad = (k.threshold or 0.0) < v < (k.upper or 0.0)
         elif k.kind == "disk":
             bad = float(np.linalg.norm(x - np.array(k.center))) < (k.radius or 0.0)
+        elif k.kind == "two_disks":
+            bad = any(
+                float(np.linalg.norm(x - np.array(c))) < (k.radius or 0.0) for c in k.centers or []
+            )
+        elif k.kind == "wedge":
+            bad = float(np.dot(k.weights, x)) > (k.threshold or 0.0) and float(
+                np.dot(k.weights2, x)
+            ) > (k.threshold2 or 0.0)
+        elif k.kind == "ring":
+            d = float(np.linalg.norm(x - np.array(k.center)))
+            bad = (k.radius or 0.0) < d < (k.outer or 0.0)
         else:
             raise ValueError(f"unknown constraint kind {k.kind}")
         return (not bad), (k.reason if bad else "no synthetic stability rule applies")
