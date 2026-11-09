@@ -26,7 +26,7 @@ from .agentcore.policy import ToolFailure, ToolRegistry
 from .environment import CampaignSpec
 from .prompts import brief_text, planner_system_prompt
 from .schemas import CampaignState, Candidate
-from .tools import Campaign, FeasibilityArgs, FinishArgs, ProposeArgs
+from .tools import Campaign, FeasibilityArgs, FinishArgs, ProposeArgs, ReplicateArgs
 
 
 class TunedParams(BaseModel):
@@ -75,6 +75,24 @@ def _try(camp: Campaign, state: CampaignState, cid: str, fid: str) -> bool:
     key = f"{fid}-{cid}-{len(state.receipts) + 1}"
     try:
         camp.assay(state, cid, fid, key)  # type: ignore[arg-type]
+    except ToolFailure:
+        return False
+    return True
+
+
+def _replicate(camp: Campaign, state: CampaignState, cid: str) -> bool:
+    """Replicate the first successful screen of ``cid`` (flagged as a replicate)."""
+    if state.remaining_units < camp.brief.cost["screen"] - 1e-9:
+        return False
+    first = next(
+        o for o in state.observations
+        if o.candidate_id == cid and o.fidelity == "screen" and o.status == "ok"
+    )  # fmt: skip
+    key = f"rep-{cid}-{len(state.receipts) + 1}"
+    try:
+        camp.replicate(
+            state, ReplicateArgs(observation_id=first.observation_id, idempotency_key=key)
+        )
     except ToolFailure:
         return False
     return True
@@ -212,7 +230,7 @@ def execute_plan(camp: Campaign, state: CampaignState, plan: Plan) -> None:
         _try(camp, state, picked, "screen")
     screen = _means(state, "screen")
     for cid in sorted(screen, key=lambda c: (-screen[c], c))[: plan.replicate_top]:
-        _try(camp, state, cid, "screen")
+        _replicate(camp, state, cid)
     _confirm_top(camp, state, plan.confirm_top)
     declare(camp, state)
 

@@ -143,3 +143,31 @@ def test_audit_reads_only_ledgers_and_catches_tampering(tmp_path) -> None:
     (led / "b.json").write_text(json.dumps({**doc, "spent_units": 4.0, "receipts": [rec, rec]}))
     n, problems = audit_ledgers(tmp_path)
     assert n == 2 and any("duplicate" in p for p in problems)
+
+
+def test_v2_executor_flags_replicates(cands, dev_specs) -> None:
+    cs, mhash = cands
+    spec = dev_specs["dev-smooth"]
+    good = (
+        '{"summary": "s", "screen_strategy": "balanced", "screens": 6, '
+        '"replicate_top": 2, "confirm_top": 1}'
+    )
+    res = run_single_call(spec, cs, mhash, FixtureAdapter([good]), 0, EpisodeSettings())
+    reps = [o for o in res.state.observations if o.replicate_of]
+    assert len(reps) == 2 and all(o.fidelity == "screen" for o in reps)
+    assert score(spec, cs, res)["replications"] == 2 and verify(res.state) == []
+
+
+def test_capped_episodes_are_pending_not_scored() -> None:
+    from budgeted_discovery_agent.evaluation import aggregate
+
+    base = {"family": "f", "campaign_id": "c", "mode": "live", "status": "complete",
+            "normalized_regret": 0.2, "hit": 0, "chosen_feasible": 1, "confirmed_choice": 1,
+            "unused_units": 0.0}  # fmt: skip
+    rows = [
+        {**base, "arm": "agent", "run": 0, "stop_reason": "finished"},
+        {**base, "arm": "agent", "run": 1, "stop_reason": "run_budget_exhausted",
+         "status": "failed", "normalized_regret": 1.0},  # fmt: skip
+    ]
+    (row,) = aggregate(rows)
+    assert row["episodes"] == 1 and row["pending"] == 1 and row["regret_mean"] == 0.2
