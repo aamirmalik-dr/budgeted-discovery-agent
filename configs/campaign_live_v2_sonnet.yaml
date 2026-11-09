@@ -2,6 +2,11 @@
 # only the agent arm and the strongest v1 baseline (tuned GP-UCB, no model), one
 # noise stream. Frozen 2026-11-09 before the run. Episodes not reached because of
 # the dollar cap are reported as pending.
+# Attempt 1 (default 2 retries, 2 s backoff) failed with HTTP 429 in every agent
+# episode while several sessions shared the provider; its outputs are kept in
+# reports/aborted/live_v2_sonnet_http429. This re-run changes only the retry
+# settings and the dollar cap (2.20 + 0.25 allowed for run B in total, minus the
+# 0.306 USD attempt 1 spent, minus one worst-case episode).
 mode: live
 model: anthropic/claude-sonnet-4.6   # via OpenRouter
 families: [heldout_v2]
@@ -16,8 +21,10 @@ episode:
   max_completion_tokens: 400
 run_caps:
   max_total_tokens: 2000000
-  max_usd: 2.20                   # checked before every episode at the prices below
+  max_usd: 1.85                   # checked before every episode at the prices below
   usd_per_mtok_input: 3.00        # OpenRouter listed price, 2026-11-09
   usd_per_mtok_output: 15.00
 output_dir: reports/live_v2_sonnet
 checkpoint_dir: runs/v2b
+adapter_max_retries: 6
+adapter_backoff_s: 5.0
