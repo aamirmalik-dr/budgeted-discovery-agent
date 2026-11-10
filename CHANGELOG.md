@@ -29,11 +29,11 @@ Live results with `anthropic/claude-sonnet-4.6`, 1 stream:
 - The tuned rule scored 0.258 on the same 8 campaigns.
 - The first attempt hit HTTP 429 rate limits. It is kept under `reports/aborted/` and not counted.
 - Live configs take the adapter retry count and backoff.
-- Em dashes in saved model replies are stored as JSON escapes.
+- Saved model replies are written as ASCII-escaped JSON.
 
 Figures:
 - `scripts/make_figures.py` draws every figure from saved task results, receipt ledgers and one trace, with true values read from the frozen campaign definitions.
-- The current set is publication-style:
+- The current set:
   - Figure 1: incumbent regret against budget spent (small multiples with bootstrap bands), final-regret rainclouds, stop reasons, and an example campaign raster.
   - Figure S1: paired difference against the tuned rule.
   - Exported as SVG and as 256-colour 300 dpi PNG.
